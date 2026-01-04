@@ -65,8 +65,30 @@ h1 {
   background: #00aa00;
 }
 
+.indicator.syncing .dot {
+  background: #1da1f2;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.indicator.error .dot {
+  background: #e53935;
+}
+
 .indicator.disabled .dot {
   background: #999;
+}
+
+.indicator.unknown .dot {
+  background: #ccc;
 }
 
 .indicator .text {
@@ -75,8 +97,33 @@ h1 {
   color: #333;
 }
 
+.error-box {
+  padding: 12px;
+  margin-bottom: 16px;
+  background: #ffebee;
+  border-left: 4px solid #e53935;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #c62828;
+  line-height: 1.5;
+}
+
+.error-box strong {
+  font-weight: 600;
+}
+
+.error {
+  padding: 40px 0;
+  text-align: center;
+  color: #e53935;
+  font-weight: 500;
+}
+
 .stats {
   margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .stat {
