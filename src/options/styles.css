@@ -138,3 +138,15 @@ h2 {
   font-size: 14px;
   font-weight: 500;
 }
+
+.error-text {
+  color: #d32f2f;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.info-text {
+  color: #1976d2;
+  font-size: 13px;
+  margin-top: 8px;
+}

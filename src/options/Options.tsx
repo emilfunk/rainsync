@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { getStorage, setStorage } from '../shared/utils/storage';
+import { MessageType } from '../shared/types/messages';
 
 export function Options() {
   const [token, setToken] = useState('');
   const [syncEnabled, setSyncEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -23,21 +26,54 @@ export function Options() {
     }
   }
 
+  async function validateToken(tokenToValidate: string): Promise<boolean> {
+    setValidating(true);
+    setValidationError(null);
+
+    try {
+      // Send message to background script to validate token
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.VALIDATE_TOKEN,
+        payload: { token: tokenToValidate },
+      });
+
+      if (response.valid) {
+        return true;
+      } else {
+        setValidationError(response.error || 'Invalid token');
+        return false;
+      }
+    } catch (error) {
+      setValidationError('Failed to validate token. Please try again.');
+      console.error('Token validation failed', error);
+      return false;
+    } finally {
+      setValidating(false);
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
     setSaved(false);
+    setValidationError(null);
 
     try {
+      // Validate token if provided
       if (token.trim()) {
+        const isValid = await validateToken(token.trim());
+        if (!isValid) {
+          return; // Don't save if validation failed
+        }
         await setStorage('raindropToken', token.trim());
       }
+
       await setStorage('syncEnabled', syncEnabled);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error('Failed to save settings', error);
-      alert('Failed to save settings. Please try again.');
+      setValidationError('Failed to save settings. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -63,10 +99,20 @@ export function Options() {
             <input
               type="password"
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(e) => {
+                setToken(e.target.value);
+                setValidationError(null);
+              }}
               placeholder="Paste your Raindrop.io test token"
               className="token-input"
+              disabled={validating}
             />
+            {validationError && (
+              <p className="error-text">{validationError}</p>
+            )}
+            {validating && (
+              <p className="info-text">Validating token...</p>
+            )}
           </section>
 
           <section className="section">
