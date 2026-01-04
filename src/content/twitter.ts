@@ -59,16 +59,72 @@ class TwitterContentScript {
    * Send tweet data to background script
    */
   private async sendToBackground(tweet: Tweet): Promise<void> {
-    const response = await chrome.runtime.sendMessage({
-      type: MessageType.BOOKMARK_DETECTED,
-      payload: { tweet },
-    });
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.BOOKMARK_DETECTED,
+        payload: { tweet },
+      });
 
-    if (response?.error) {
-      logger.error('Background script returned error', undefined, response.error);
-    } else {
-      logger.info('Tweet sent to background successfully');
+      if (response?.error) {
+        logger.error('Background script returned error', undefined, response.error);
+      } else {
+        logger.info('Tweet sent to background successfully');
+      }
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+
+      // Handle extension context invalidated (extension was reloaded)
+      if (errorMessage.includes('Extension context invalidated')) {
+        logger.warn('Extension was reloaded. Please refresh this page to continue syncing.');
+        this.showReloadNotification();
+        return;
+      }
+
+      // Handle other errors
+      throw error;
     }
+  }
+
+  /**
+   * Show a notification to reload the page
+   */
+  private showReloadNotification(): void {
+    // Create a notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #1da1f2;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      max-width: 300px;
+      cursor: pointer;
+    `;
+    notification.innerHTML = `
+      <strong>RainSync Updated</strong>
+      <p style="margin: 8px 0 0 0;">Please reload this page to continue syncing bookmarks.</p>
+      <p style="margin: 8px 0 0 0; font-size: 12px; opacity: 0.9;">Click to dismiss</p>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto-dismiss after 10 seconds
+    const dismissTimeout = setTimeout(() => {
+      notification.remove();
+    }, 10000);
+
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+      clearTimeout(dismissTimeout);
+      notification.remove();
+    });
   }
 
   /**
