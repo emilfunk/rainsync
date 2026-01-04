@@ -150,3 +150,50 @@ h2 {
   font-size: 13px;
   margin-top: 8px;
 }
+
+.btn-bulk-sync {
+  padding: 12px 24px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-bulk-sync:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.btn-bulk-sync:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.bulk-sync-status {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 4px solid #1da1f2;
+}
+
+.bulk-sync-status .status-text {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.progress-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #666;
+}
+
+.progress-stats .errors {
+  color: #d32f2f;
+  font-weight: 500;
+}

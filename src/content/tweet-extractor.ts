@@ -15,6 +15,7 @@ export class TweetExtractor {
       const timestamp = this.extractTimestamp(tweetElement);
       const quotedTweet = this.extractQuotedTweet(tweetElement);
       const isRetweet = this.isRetweet(tweetElement);
+      const isDeleted = this.isDeleted(tweetElement);
 
       if (!id || !url || !text || !author) {
         logger.warn('Failed to extract required tweet data', { id, url, hasText: !!text, hasAuthor: !!author });
@@ -29,6 +30,7 @@ export class TweetExtractor {
         timestamp,
         quotedTweet: quotedTweet || undefined,
         isRetweet,
+        isDeleted,
       };
     } catch (error) {
       logger.error('Error extracting tweet', error as Error);
@@ -170,5 +172,24 @@ export class TweetExtractor {
     // This is a basic check - may need refinement based on Twitter's current structure
     const text = element.textContent || '';
     return text.includes('Retweeted') || text.includes('retweeted');
+  }
+
+  /**
+   * Check if this tweet is deleted or unavailable
+   */
+  private isDeleted(element: Element): boolean {
+    const text = element.textContent || '';
+
+    // Twitter shows various messages for unavailable tweets
+    const deletedPatterns = [
+      'This Tweet is unavailable',
+      'This Post is unavailable',
+      'This Tweet was deleted',
+      'This Post was deleted',
+      'Tweet unavailable',
+      'Post unavailable',
+    ];
+
+    return deletedPatterns.some(pattern => text.includes(pattern));
   }
 }

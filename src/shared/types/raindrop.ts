@@ -46,3 +46,10 @@ export class AuthError extends RaindropApiError {
     this.name = 'AuthError';
   }
 }
+
+export class NetworkError extends RaindropApiError {
+  constructor(message: string) {
+    super(message, 0);
+    this.name = 'NetworkError';
+  }
+}

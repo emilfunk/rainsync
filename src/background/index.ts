@@ -1,5 +1,6 @@
 import { logger } from '../shared/utils/logger';
 import { getStorage, setStorage } from '../shared/utils/storage';
+import { formatErrorMessage } from '../shared/utils/error-formatter';
 import { MessageType, Message, BookmarkDetectedPayload } from '../shared/types/messages';
 import { raindropApi } from './raindrop-api';
 import { CollectionManager } from './collection-manager';
@@ -57,6 +58,12 @@ async function handleMessage(message: Message, _sender: chrome.runtime.MessageSe
     case MessageType.BOOKMARK_DETECTED:
       return handleBookmarkDetected(message.payload);
 
+    case MessageType.START_BULK_SYNC:
+      return handleStartBulkSync();
+
+    case MessageType.BULK_SYNC_PROGRESS:
+      return handleBulkSyncProgress();
+
     default:
       logger.warn('Unknown message type', { type: message.type });
       return { error: 'Unknown message type' };
@@ -79,7 +86,7 @@ async function handleValidateToken(payload: { token: string }) {
     logger.error('Token validation failed', error as Error);
     return {
       valid: false,
-      error: (error as Error).message || 'Failed to validate token'
+      error: formatErrorMessage(error)
     };
   }
 }
@@ -98,9 +105,10 @@ async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
     // Check if token is configured
     const token = await getStorage('raindropToken');
     if (!token) {
+      const errorMsg = 'Raindrop token not configured. Please add your token in Settings.';
       logger.warn('Raindrop token not configured');
-      await setStorage('lastError', 'Raindrop token not configured');
-      return { success: false, error: 'Token not configured' };
+      await setStorage('lastError', errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     // Add to sync queue
@@ -110,7 +118,9 @@ async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
     return { success: true };
   } catch (error) {
     logger.error('Error handling bookmark', error as Error);
-    return { success: false, error: (error as Error).message };
+    const errorMsg = formatErrorMessage(error);
+    await setStorage('lastError', errorMsg);
+    return { success: false, error: errorMsg };
   }
 }
 
@@ -127,6 +137,67 @@ async function handleSyncStatusRequest() {
     totalSynced,
     lastError,
     isProcessing: queueStatus.isProcessing,
+    queueLength: queueStatus.length,
+  };
+}
+
+async function handleStartBulkSync() {
+  try {
+    // Check if token is configured
+    const token = await getStorage('raindropToken');
+    if (!token) {
+      return { error: 'Raindrop token not configured. Please add your token in Settings.' };
+    }
+
+    // Check if sync is enabled
+    const syncEnabled = await getStorage('syncEnabled');
+    if (!syncEnabled) {
+      return { error: 'Sync is disabled. Please enable it in settings first.' };
+    }
+
+    logger.info('Starting bulk sync - opening bookmarks page');
+
+    // Open Twitter bookmarks page
+    const bookmarksUrl = 'https://twitter.com/i/bookmarks';
+    await chrome.tabs.create({ url: bookmarksUrl });
+
+    // Set bulk sync status
+    await setStorage('bulkSyncInProgress', true);
+    await setStorage('bulkSyncStatus', {
+      isRunning: true,
+      total: 0,
+      synced: 0,
+      errors: 0,
+      status: 'Please scroll through your bookmarks. The extension will automatically sync them as you scroll.',
+    });
+
+    return { success: true };
+  } catch (error) {
+    logger.error('Failed to start bulk sync', error as Error);
+    return { error: formatErrorMessage(error) };
+  }
+}
+
+async function handleBulkSyncProgress() {
+  const bulkSyncStatus = await getStorage('bulkSyncStatus');
+  const queueStatus = syncManager.getQueueStatus();
+
+  if (!bulkSyncStatus) {
+    return {
+      isRunning: false,
+      total: 0,
+      synced: 0,
+      errors: 0,
+      status: '',
+    };
+  }
+
+  // Update synced count from storage
+  const totalSynced = await getStorage('totalSynced') || 0;
+
+  return {
+    ...bulkSyncStatus,
+    synced: totalSynced,
     queueLength: queueStatus.length,
   };
 }

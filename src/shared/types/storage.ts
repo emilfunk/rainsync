@@ -1,5 +1,13 @@
 import { Tweet } from './tweet';
 
+export interface BulkSyncStatus {
+  isRunning: boolean;
+  total: number;
+  synced: number;
+  errors: number;
+  status: string;
+}
+
 export interface StorageSchema {
   // Authentication
   raindropToken?: string;
@@ -11,6 +19,10 @@ export interface StorageSchema {
   // Sync State
   lastSyncTime?: number; // Unix timestamp
   syncQueue: QueuedBookmark[];
+
+  // Bulk Sync
+  bulkSyncInProgress?: boolean;
+  bulkSyncStatus?: BulkSyncStatus;
 
   // Statistics
   totalSynced: number;

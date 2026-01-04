@@ -5,6 +5,7 @@ import {
   RaindropApiError,
   RateLimitError,
   AuthError,
+  NetworkError,
 } from '../shared/types/raindrop';
 import { logger } from '../shared/utils/logger';
 import { RAINDROP_API_BASE } from '../shared/constants/api';
@@ -154,8 +155,18 @@ export class RaindropApi {
 
       // Network or other errors
       logger.error('Raindrop API request failed', error as Error, { endpoint });
+
+      // Detect network failures
+      const errorMessage = (error as Error).message;
+      if (errorMessage.includes('Failed to fetch') ||
+          errorMessage.includes('NetworkError') ||
+          errorMessage.includes('network') ||
+          !navigator.onLine) {
+        throw new NetworkError('Network connection failed. Please check your internet connection.');
+      }
+
       throw new RaindropApiError(
-        `Network error: ${(error as Error).message}`,
+        `Request error: ${errorMessage}`,
         undefined,
         error
       );

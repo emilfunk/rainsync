@@ -3,6 +3,7 @@ import { RaindropBookmark } from '../shared/types/raindrop';
 import { QueuedBookmark } from '../shared/types/storage';
 import { getStorage, setStorage } from '../shared/utils/storage';
 import { logger } from '../shared/utils/logger';
+import { formatErrorMessage } from '../shared/utils/error-formatter';
 import { RATE_LIMIT_DELAY_MS } from '../shared/constants/api';
 import { MAX_RETRY_ATTEMPTS } from '../shared/constants/retry';
 import { RaindropApi } from './raindrop-api';
@@ -111,10 +112,13 @@ export class SyncManager {
       } catch (error) {
         logger.error('Failed to sync bookmark', error as Error, { url: item.tweet.url });
 
+        // Get user-friendly error message
+        const userErrorMessage = formatErrorMessage(error);
+
         // Update retry count
         item.retryCount++;
         item.lastAttempt = Date.now();
-        item.error = (error as Error).message;
+        item.error = userErrorMessage;
 
         if (item.retryCount >= MAX_RETRY_ATTEMPTS) {
           // Max retries exceeded - remove from queue
@@ -125,7 +129,7 @@ export class SyncManager {
         }
 
         await this.saveQueue();
-        await setStorage('lastError', (error as Error).message);
+        await setStorage('lastError', userErrorMessage);
 
         // If it's a rate limit error, pause processing
         if (this.retryHandler.isRateLimitError(error)) {
@@ -176,7 +180,10 @@ export class SyncManager {
    */
   private convertTweetToRaindrop(tweet: Tweet, collectionId: number): RaindropBookmark {
     // Title: First 100 chars or first line of tweet text
-    const title = tweet.text.substring(0, 100).split('\n')[0];
+    let title = tweet.text.substring(0, 100).split('\n')[0];
+    if (tweet.isDeleted) {
+      title = `[DELETED] ${title}`;
+    }
 
     // Tags: Author handle
     const tags = [tweet.author.handle];
@@ -196,6 +203,11 @@ export class SyncManager {
 
     if (tweet.isRetweet) {
       excerpt += '\nType: Retweet';
+    }
+
+    if (tweet.isDeleted) {
+      excerpt += '\n\n⚠️ Note: This tweet was unavailable or deleted at the time of archiving.';
+      excerpt += '\nThe content preserved here may be incomplete or represent a placeholder.';
     }
 
     return {
