@@ -3,12 +3,14 @@ import { BookmarkDetector } from './bookmark-detector';
 import { TweetExtractor } from './tweet-extractor';
 import { MessageType } from '../shared/types/messages';
 import { Tweet } from '../shared/types/tweet';
+import { SELECTORS } from './dom-selectors';
 
 logger.info('RainSync content script loaded on', window.location.href);
 
 class TwitterContentScript {
   private detector: BookmarkDetector;
   private extractor: TweetExtractor;
+  private processedTweets = new Set<string>();
 
   constructor() {
     this.extractor = new TweetExtractor();
@@ -24,7 +26,150 @@ class TwitterContentScript {
     // Start bookmark detection
     this.detector.start();
 
+    // Listen for bulk sync messages
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (message.type === MessageType.START_BULK_SYNC) {
+        logger.info('Bulk sync triggered');
+        this.startBulkSync().then(() => {
+          sendResponse({ success: true });
+        }).catch((error) => {
+          logger.error('Bulk sync failed', error);
+          sendResponse({ error: error.message });
+        });
+        return true; // Keep channel open for async response
+      }
+    });
+
     logger.info('RainSync content script initialized - watching for bookmarks');
+  }
+
+  /**
+   * Start bulk sync on bookmarks page
+   */
+  private async startBulkSync(): Promise<void> {
+    if (window.location.pathname !== '/i/bookmarks') {
+      logger.warn('Bulk sync can only run on bookmarks page');
+      return;
+    }
+
+    logger.info('Starting bulk sync scraper');
+
+    this.showBulkSyncNotification('Bulk sync started. Scrolling to load all bookmarks...');
+
+    let scrollAttempts = 0;
+    const MAX_SCROLL_ATTEMPTS = 10;
+    let totalFound = 0;
+    let totalSynced = 0;
+    let totalErrors = 0;
+
+    while (scrollAttempts < MAX_SCROLL_ATTEMPTS) {
+      // Extract visible tweets
+      const result = await this.extractVisibleTweets();
+      totalFound += result.found;
+      totalSynced += result.synced;
+      totalErrors += result.errors;
+
+      // If no new tweets found, increment attempts
+      if (result.found === 0) {
+        scrollAttempts++;
+      } else {
+        scrollAttempts = 0;
+      }
+
+      // Scroll down
+      window.scrollTo(0, document.body.scrollHeight);
+
+      // Wait for content to load
+      await this.sleep(2000);
+
+      // Check if reached bottom
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      if (scrollTop + clientHeight >= scrollHeight - 100 && scrollAttempts >= 3) {
+        break;
+      }
+    }
+
+    this.showBulkSyncNotification(
+      `Bulk sync complete! Found ${totalFound} bookmarks. Synced: ${totalSynced}, Errors: ${totalErrors}`
+    );
+
+    logger.info('Bulk sync complete', {
+      found: totalFound,
+      synced: totalSynced,
+      errors: totalErrors,
+    });
+  }
+
+  /**
+   * Extract all visible tweets
+   */
+  private async extractVisibleTweets(): Promise<{ found: number; synced: number; errors: number }> {
+    const tweetElements = document.querySelectorAll(SELECTORS.TWEET_ARTICLE);
+    let found = 0;
+    let synced = 0;
+    let errors = 0;
+
+    for (const element of tweetElements) {
+      const tweet = this.extractor.extractTweet(element);
+
+      if (!tweet || this.processedTweets.has(tweet.id)) {
+        continue;
+      }
+
+      this.processedTweets.add(tweet.id);
+      found++;
+
+      try {
+        await this.sendToBackground(tweet);
+        synced++;
+      } catch (error) {
+        logger.error('Failed to sync tweet', error as Error, { id: tweet.id });
+        errors++;
+      }
+    }
+
+    return { found, synced, errors };
+  }
+
+  /**
+   * Show bulk sync notification
+   */
+  private showBulkSyncNotification(message: string): void {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #1da1f2;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      max-width: 350px;
+    `;
+    notification.innerHTML = `
+      <strong>RainSync Bulk Sync</strong>
+      <p style="margin: 8px 0 0 0;">${message}</p>
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
+
+  /**
+   * Sleep utility
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

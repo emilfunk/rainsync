@@ -159,7 +159,7 @@ async function handleStartBulkSync() {
 
     // Open Twitter bookmarks page
     const bookmarksUrl = 'https://twitter.com/i/bookmarks';
-    await chrome.tabs.create({ url: bookmarksUrl });
+    const tab = await chrome.tabs.create({ url: bookmarksUrl });
 
     // Set bulk sync status
     await setStorage('bulkSyncInProgress', true);
@@ -168,8 +168,23 @@ async function handleStartBulkSync() {
       total: 0,
       synced: 0,
       errors: 0,
-      status: 'Please scroll through your bookmarks. The extension will automatically sync them as you scroll.',
+      status: 'Loading bookmarks page and starting automatic sync...',
     });
+
+    // Wait for the tab to load, then send message to start scraping
+    if (tab.id) {
+      chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+        if (tabId === tab.id && info.status === 'complete') {
+          chrome.tabs.onUpdated.removeListener(listener);
+          // Send message to start bulk sync
+          chrome.tabs.sendMessage(tabId, {
+            type: MessageType.START_BULK_SYNC,
+          }).catch((error) => {
+            logger.error('Failed to send bulk sync message to tab', error);
+          });
+        }
+      });
+    }
 
     return { success: true };
   } catch (error) {
