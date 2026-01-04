@@ -4,6 +4,7 @@ import { QueuedBookmark } from '../shared/types/storage';
 import { getStorage, setStorage } from '../shared/utils/storage';
 import { logger } from '../shared/utils/logger';
 import { formatErrorMessage } from '../shared/utils/error-formatter';
+import { showBookmarkSyncedNotification } from '../shared/utils/notifications';
 import { RATE_LIMIT_DELAY_MS } from '../shared/constants/api';
 import { MAX_RETRY_ATTEMPTS } from '../shared/constants/retry';
 import { RaindropApi } from './raindrop-api';
@@ -14,6 +15,7 @@ export class SyncManager {
   private queue: QueuedBookmark[] = [];
   private isProcessing = false;
   private retryHandler: RetryHandler;
+  private sessionSyncedCount = 0;
 
   constructor(
     private raindropApi: RaindropApi,
@@ -104,6 +106,14 @@ export class SyncManager {
         await setStorage('totalSynced', totalSynced + 1);
         await setStorage('lastSyncTime', Date.now());
         await setStorage('lastError', undefined);
+
+        // Increment session counter
+        this.sessionSyncedCount++;
+
+        // Show notification for first sync, then every 10 syncs
+        if (this.sessionSyncedCount === 1 || this.sessionSyncedCount % 10 === 0) {
+          showBookmarkSyncedNotification(this.sessionSyncedCount === 1 ? 1 : 10);
+        }
 
         logger.info('Bookmark synced successfully', {
           url: item.tweet.url,
