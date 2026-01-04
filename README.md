@@ -87,7 +87,17 @@ To import all your existing bookmarks:
 2. Scroll to the "Bulk Sync" section
 3. Click "Start Bulk Sync"
 4. A new tab will open to `twitter.com/i/bookmarks`
-5. Scroll through your bookmarks - they'll sync automatically as you scroll
+5. The extension will automatically scroll and extract all bookmarks
+6. Wait for the completion notification
+
+**⏱️ Important: Sync Timing**
+- Bulk sync **queues** bookmarks quickly (30-60 seconds for scrolling)
+- Bookmarks are **synced gradually** with rate limiting delays
+- **500ms delay** between each sync to respect API limits
+- **Large collections take time**: 100 bookmarks ≈ 1-2 minutes, 500 bookmarks ≈ 5-10 minutes
+- Check the popup to monitor queue progress
+- Bookmarks appear in Raindrop.io as they're synced, not all at once
+- **You can close the tab** - syncing continues in the background
 
 ### Viewing Status
 
@@ -257,11 +267,19 @@ This happens when the extension is reloaded while Twitter is open:
 2. Simply refresh the Twitter tab
 3. Syncing will resume normally
 
-### Bookmarks not appearing in Raindrop
+### Bookmarks not appearing in Raindrop (yet)
 
+**If you just ran bulk sync:**
+1. **Be patient!** Bookmarks sync gradually, not all at once
+2. Click the RainSync popup to check queue status
+3. Wait for "Queue: 0" - this means all bookmarks are synced
+4. Refresh Raindrop.io to see newly synced bookmarks
+
+**If sync is stuck:**
 1. Check the "Twitter Bookmarks" collection in Raindrop.io
 2. Verify sync status in the popup
-3. Look for errors in the queue
+3. Look for error messages
+4. Check the queue length - if it's not decreasing, there may be an error
 
 ### Rate limit errors
 
