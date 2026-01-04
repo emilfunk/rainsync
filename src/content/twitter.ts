@@ -4,6 +4,10 @@ import { TweetExtractor } from './tweet-extractor';
 import { MessageType } from '../shared/types/messages';
 import { Tweet } from '../shared/types/tweet';
 import { SELECTORS } from './dom-selectors';
+import {
+  showBulkSyncCompleteNotification,
+  showExtensionReloadNotification,
+} from '../shared/utils/notifications';
 
 logger.info('RainSync content script loaded on', window.location.href);
 
@@ -54,8 +58,6 @@ class TwitterContentScript {
 
     logger.info('Starting bulk sync scraper');
 
-    this.showBulkSyncNotification('Bulk sync started. Scrolling to load all bookmarks...');
-
     let scrollAttempts = 0;
     const MAX_SCROLL_ATTEMPTS = 10;
     let totalFound = 0;
@@ -92,9 +94,7 @@ class TwitterContentScript {
       }
     }
 
-    this.showBulkSyncNotification(
-      `Bulk sync complete! Found ${totalFound} bookmarks. Synced: ${totalSynced}, Errors: ${totalErrors}`
-    );
+    showBulkSyncCompleteNotification(totalFound, totalSynced, totalErrors);
 
     logger.info('Bulk sync complete', {
       found: totalFound,
@@ -132,37 +132,6 @@ class TwitterContentScript {
     }
 
     return { found, synced, errors };
-  }
-
-  /**
-   * Show bulk sync notification
-   */
-  private showBulkSyncNotification(message: string): void {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #1da1f2;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      max-width: 350px;
-    `;
-    notification.innerHTML = `
-      <strong>RainSync Bulk Sync</strong>
-      <p style="margin: 8px 0 0 0;">${message}</p>
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.remove();
-    }, 5000);
   }
 
   /**
@@ -221,7 +190,7 @@ class TwitterContentScript {
       // Handle extension context invalidated (extension was reloaded)
       if (errorMessage.includes('Extension context invalidated')) {
         logger.warn('Extension was reloaded. Please refresh this page to continue syncing.');
-        this.showReloadNotification();
+        showExtensionReloadNotification();
         return;
       }
 
@@ -230,47 +199,6 @@ class TwitterContentScript {
     }
   }
 
-  /**
-   * Show a notification to reload the page
-   */
-  private showReloadNotification(): void {
-    // Create a notification element
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #1da1f2;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      max-width: 300px;
-      cursor: pointer;
-    `;
-    notification.innerHTML = `
-      <strong>RainSync Updated</strong>
-      <p style="margin: 8px 0 0 0;">Please reload this page to continue syncing bookmarks.</p>
-      <p style="margin: 8px 0 0 0; font-size: 12px; opacity: 0.9;">Click to dismiss</p>
-    `;
-
-    // Add to page
-    document.body.appendChild(notification);
-
-    // Auto-dismiss after 10 seconds
-    const dismissTimeout = setTimeout(() => {
-      notification.remove();
-    }, 10000);
-
-    // Click to dismiss
-    notification.addEventListener('click', () => {
-      clearTimeout(dismissTimeout);
-      notification.remove();
-    });
-  }
 
   /**
    * Cleanup
