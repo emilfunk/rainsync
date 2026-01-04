@@ -1,14 +1,21 @@
 import { logger } from '../shared/utils/logger';
 import { getStorage, setStorage } from '../shared/utils/storage';
-import { MessageType, Message } from '../shared/types/messages';
+import { MessageType, Message, BookmarkDetectedPayload } from '../shared/types/messages';
 import { raindropApi } from './raindrop-api';
 import { CollectionManager } from './collection-manager';
+import { SyncManager } from './sync-manager';
 
 logger.info('RainSync background service worker starting...');
 
-// Initialize collection manager (will be used in Phase 4)
-// @ts-expect-error - will be used in Phase 4
+// Initialize managers
 const collectionManager = new CollectionManager(raindropApi);
+const syncManager = new SyncManager(raindropApi, collectionManager);
+
+// Initialize sync manager
+(async () => {
+  await syncManager.init();
+  logger.info('SyncManager initialized');
+})();
 
 // Initialize on install
 chrome.runtime.onInstalled.addListener(async () => {
@@ -48,8 +55,7 @@ async function handleMessage(message: Message, _sender: chrome.runtime.MessageSe
       return handleSyncStatusRequest();
 
     case MessageType.BOOKMARK_DETECTED:
-      // Will be implemented in Phase 4
-      return { received: true };
+      return handleBookmarkDetected(message.payload);
 
     default:
       logger.warn('Unknown message type', { type: message.type });
@@ -78,18 +84,50 @@ async function handleValidateToken(payload: { token: string }) {
   }
 }
 
+async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
+  try {
+    const { tweet } = payload;
+
+    // Check if sync is enabled
+    const syncEnabled = await getStorage('syncEnabled');
+    if (!syncEnabled) {
+      logger.info('Sync is disabled, ignoring bookmark');
+      return { success: false, reason: 'Sync disabled' };
+    }
+
+    // Check if token is configured
+    const token = await getStorage('raindropToken');
+    if (!token) {
+      logger.warn('Raindrop token not configured');
+      await setStorage('lastError', 'Raindrop token not configured');
+      return { success: false, error: 'Token not configured' };
+    }
+
+    // Add to sync queue
+    await syncManager.addToQueue(tweet);
+
+    logger.info('Bookmark queued for sync', { id: tweet.id, author: tweet.author.handle });
+    return { success: true };
+  } catch (error) {
+    logger.error('Error handling bookmark', error as Error);
+    return { success: false, error: (error as Error).message };
+  }
+}
+
 async function handleSyncStatusRequest() {
   const syncEnabled = await getStorage('syncEnabled');
   const lastSyncTime = await getStorage('lastSyncTime');
   const totalSynced = await getStorage('totalSynced');
   const lastError = await getStorage('lastError');
+  const queueStatus = syncManager.getQueueStatus();
 
   return {
     syncEnabled,
     lastSyncTime,
     totalSynced,
     lastError,
-    isProcessing: false, // Will be tracked in Phase 4
+    isProcessing: queueStatus.isProcessing,
+    queueLength: queueStatus.length,
   };
 }
 
