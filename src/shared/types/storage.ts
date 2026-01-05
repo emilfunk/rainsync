@@ -35,4 +35,5 @@ export interface QueuedBookmark {
   retryCount: number;
   lastAttempt?: number;
   error?: string;
+  customTag?: string;
 }

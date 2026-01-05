@@ -54,13 +54,14 @@ export class SyncManager {
   /**
    * Add a tweet to the sync queue
    */
-  async addToQueue(tweet: Tweet): Promise<void> {
-    logger.info('Adding tweet to queue', { id: tweet.id, author: tweet.author.handle });
+  async addToQueue(tweet: Tweet, customTag?: string): Promise<void> {
+    logger.info('Adding tweet to queue', { id: tweet.id, author: tweet.author.handle, customTag });
 
     const queuedBookmark: QueuedBookmark = {
       tweet,
       addedAt: Date.now(),
       retryCount: 0,
+      customTag,
     };
 
     this.queue.push(queuedBookmark);
@@ -162,7 +163,7 @@ export class SyncManager {
    * Sync a single bookmark to Raindrop
    */
   private async syncBookmark(queuedBookmark: QueuedBookmark): Promise<void> {
-    const { tweet } = queuedBookmark;
+    const { tweet, customTag } = queuedBookmark;
 
     await this.retryHandler.executeWithRetry(async () => {
       // Ensure collection exists
@@ -176,19 +177,19 @@ export class SyncManager {
       }
 
       // Convert tweet to Raindrop bookmark
-      const raindropBookmark = this.convertTweetToRaindrop(tweet, collectionId);
+      const raindropBookmark = this.convertTweetToRaindrop(tweet, collectionId, customTag);
 
       // Create bookmark
       await this.raindropApi.createBookmark(raindropBookmark);
 
-      logger.info('Bookmark created in Raindrop', { url: tweet.url });
+      logger.info('Bookmark created in Raindrop', { url: tweet.url, customTag });
     }, `sync bookmark ${tweet.url}`);
   }
 
   /**
    * Convert a Tweet to a RaindropBookmark
    */
-  private convertTweetToRaindrop(tweet: Tweet, collectionId: number): RaindropBookmark {
+  private convertTweetToRaindrop(tweet: Tweet, collectionId: number, customTag?: string): RaindropBookmark {
     // Title: First 100 chars or first line of tweet text
     let title = tweet.text.substring(0, 100).split('\n')[0];
     if (tweet.isDeleted) {
@@ -202,6 +203,9 @@ export class SyncManager {
     }
     if (tweet.isRetweet) {
       tags.push('retweet');
+    }
+    if (customTag) {
+      tags.push(customTag);
     }
 
     // Excerpt/Notes: Full tweet text + quote tweet if applicable + metadata

@@ -1,6 +1,7 @@
 import { logger } from '../shared/utils/logger';
 import { BookmarkDetector } from './bookmark-detector';
 import { TweetExtractor } from './tweet-extractor';
+import { TagInputModal } from './tag-input-modal';
 import { MessageType } from '../shared/types/messages';
 import { Tweet } from '../shared/types/tweet';
 import { SELECTORS } from './dom-selectors';
@@ -161,9 +162,15 @@ class TwitterContentScript {
       url: tweet.url,
     });
 
+    // Show modal to get custom tag from user
+    const modal = new TagInputModal();
+    const customTag = await modal.show();
+
+    logger.info('User provided tag', { customTag });
+
     // Send to background script
     try {
-      await this.sendToBackground(tweet);
+      await this.sendToBackground(tweet, customTag);
     } catch (error) {
       logger.error('Failed to send tweet to background', error as Error);
     }
@@ -172,11 +179,14 @@ class TwitterContentScript {
   /**
    * Send tweet data to background script
    */
-  private async sendToBackground(tweet: Tweet): Promise<void> {
+  private async sendToBackground(tweet: Tweet, customTag?: string | null): Promise<void> {
     try {
       const response = await chrome.runtime.sendMessage({
         type: MessageType.BOOKMARK_DETECTED,
-        payload: { tweet },
+        payload: {
+          tweet,
+          customTag: customTag || undefined,
+        },
       });
 
       if (response?.error) {

@@ -18,6 +18,7 @@ export interface Message<T = any> {
 
 export interface BookmarkDetectedPayload {
   tweet: Tweet;
+  customTag?: string;
 }
 
 export interface SyncStatusPayload {

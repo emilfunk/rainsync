@@ -93,7 +93,7 @@ async function handleValidateToken(payload: { token: string }) {
 
 async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
   try {
-    const { tweet } = payload;
+    const { tweet, customTag } = payload;
 
     // Check if sync is enabled
     const syncEnabled = await getStorage('syncEnabled');
@@ -112,9 +112,9 @@ async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
     }
 
     // Add to sync queue
-    await syncManager.addToQueue(tweet);
+    await syncManager.addToQueue(tweet, customTag);
 
-    logger.info('Bookmark queued for sync', { id: tweet.id, author: tweet.author.handle });
+    logger.info('Bookmark queued for sync', { id: tweet.id, author: tweet.author.handle, customTag });
     return { success: true };
   } catch (error) {
     logger.error('Error handling bookmark', error as Error);
