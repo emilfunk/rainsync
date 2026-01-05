@@ -75,12 +75,17 @@ export function isRecoverableError(error: unknown): boolean {
  * Get retry delay based on error type (in milliseconds)
  */
 export function getRetryDelay(error: unknown, attemptNumber: number): number {
-  const baseDelays = [1000, 2000, 4000, 8000, 16000]; // Exponential backoff
+  // Calculate exponential backoff: 1000ms * 2^attemptNumber
+  // For attempts 0-4: 1000, 2000, 4000, 8000, 16000
+  // For higher attempts, continue exponential growth
+  const baseDelay = 1000 * Math.pow(2, attemptNumber);
 
   if (error instanceof RateLimitError) {
-    // For rate limits, use longer delays
-    return Math.min(60000, baseDelays[attemptNumber] * 2);
+    // For rate limits, use longer delays (double the base delay)
+    // Cap at 60 seconds to avoid excessively long waits
+    return Math.min(60000, baseDelay * 2);
   }
 
-  return baseDelays[attemptNumber] || 16000;
+  // Cap regular errors at 16 seconds
+  return Math.min(16000, baseDelay);
 }
