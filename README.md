@@ -139,7 +139,7 @@ Each synced bookmark includes:
 
 - **Title**: First 100 characters of the tweet
 - **URL**: Direct link to the tweet
-- **Tags**: Author's handle (e.g., `@username`), plus `tweet-deleted` if unavailable
+- **Tags**: Simple tags (`twitter`, `tweet-deleted` if unavailable, `retweet` if applicable)
 - **Description**:
   - Full tweet text
   - Quoted tweet (if applicable)
@@ -153,7 +153,7 @@ Each synced bookmark includes:
 ```
 Title: [DELETED] This is an example tweet that was deleted
 URL: https://x.com/username/status/1234567890
-Tags: @username, tweet-deleted
+Tags: twitter, tweet-deleted
 Description:
 This is an example tweet that was deleted
 
