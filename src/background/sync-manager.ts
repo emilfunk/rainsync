@@ -195,10 +195,13 @@ export class SyncManager {
       title = `[DELETED] ${title}`;
     }
 
-    // Tags: Author handle
-    const tags = [tweet.author.handle];
+    // Tags: Simple, meaningful tags only
+    const tags = ['twitter'];
     if (tweet.isDeleted) {
       tags.push('tweet-deleted');
+    }
+    if (tweet.isRetweet) {
+      tags.push('retweet');
     }
 
     // Excerpt/Notes: Full tweet text + quote tweet if applicable + metadata
