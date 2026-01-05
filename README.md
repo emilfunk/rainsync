@@ -48,7 +48,12 @@
 
 ### From Chrome Web Store
 
-*Coming soon*
+**Status**: Ready for submission
+
+The extension is ready for Chrome Web Store publication. See [CHROME_STORE_SUBMISSION.md](CHROME_STORE_SUBMISSION.md) for submission details.
+
+Once published, install directly from the Chrome Web Store:
+*[Link will be added after publication]*
 
 ## Setup
 
@@ -296,8 +301,23 @@ If you see "Rate limit reached" errors:
 ✅ **Phase 4: Sync Manager & Service Worker** - Complete
 ✅ **Phase 5: User Interface Enhancement** - Complete
 ✅ **Phase 6: Bulk Sync & Edge Cases** - Complete
-🚧 **Phase 7: Testing & Documentation** - In Progress
-⏳ **Phase 8: Chrome Web Store Release** - Pending
+✅ **Phase 7: Testing & Documentation** - Complete
+🚀 **Phase 8: Chrome Web Store Release** - Ready for Submission
+
+### Phase 8 Completion Checklist
+
+- [x] Privacy policy created
+- [x] Store listing content prepared
+- [x] Comprehensive tests (63 tests, 62 passing)
+- [x] Production build script
+- [x] Manifest updated for production
+- [x] Documentation complete
+- [ ] Extension icons created (see `public/icons/README.md`)
+- [ ] Screenshots captured
+- [ ] Privacy policy hosted
+- [ ] Chrome Web Store submission
+
+See [CHROME_STORE_SUBMISSION.md](CHROME_STORE_SUBMISSION.md) for complete submission guide.
 
 ## Contributing
 
