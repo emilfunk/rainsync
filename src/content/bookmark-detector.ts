@@ -57,43 +57,39 @@ export class BookmarkDetector {
     for (const mutation of mutations) {
       if (mutation.type === 'attributes') {
         const target = mutation.target as Element;
-        if (this.isBookmarkRemoval(mutation)) {
-          this.handleRemoval(target);
-        } else {
+        // Only a real state switch counts. X also re-renders attributes on
+        // already-bookmarked buttons, which must not look like a new bookmark.
+        if (this.isTestIdSwitch(mutation, 'bookmark', 'removeBookmark')) {
           this.checkForBookmarkAction(target);
+        } else if (this.isTestIdSwitch(mutation, 'removeBookmark', 'bookmark')) {
+          this.handleRemoval(target);
         }
       }
     }
   }
 
   /**
-   * Check if an element is a bookmark button that just changed to bookmarked state
+   * A bookmark button that just switched to the bookmarked state
    */
   private checkForBookmarkAction(element: Element): void {
-    // Check if this element just became a "remove bookmark" button
-    // This indicates the user just bookmarked the tweet
-    const testId = element.getAttribute('data-testid');
+    logger.debug('Bookmark action detected');
+    const tweetElement = this.findParentTweet(element);
 
-    if (testId === 'removeBookmark') {
-      logger.debug('Bookmark action detected');
-      const tweetElement = this.findParentTweet(element);
-
-      if (tweetElement) {
-        this.debouncedCallback(tweetElement);
-      } else {
-        logger.warn('Could not find parent tweet element');
-      }
+    if (tweetElement) {
+      this.debouncedCallback(tweetElement);
+    } else {
+      logger.warn('Could not find parent tweet element');
     }
   }
 
   /**
-   * The button switched from "remove bookmark" back to "bookmark"
+   * The button's data-testid changed from one bookmark state to the other
    */
-  private isBookmarkRemoval(mutation: MutationRecord): boolean {
+  private isTestIdSwitch(mutation: MutationRecord, from: string, to: string): boolean {
     return (
       mutation.attributeName === 'data-testid' &&
-      mutation.oldValue === 'removeBookmark' &&
-      (mutation.target as Element).getAttribute('data-testid') === 'bookmark'
+      mutation.oldValue === from &&
+      (mutation.target as Element).getAttribute('data-testid') === to
     );
   }
 

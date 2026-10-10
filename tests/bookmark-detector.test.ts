@@ -50,6 +50,21 @@ describe('BookmarkDetector', () => {
     expect(onRemoved).toHaveBeenCalledTimes(1);
   });
 
+  it('ignores attribute updates on an already-bookmarked button', async () => {
+    document.body.innerHTML =
+      '<article data-testid="tweet"><button data-testid="removeBookmark" aria-label="Bookmarked"></button></article>';
+    const bookmarked = document.querySelector('button')!;
+    await flushMutations();
+
+    bookmarked.setAttribute('aria-label', '12 bookmarks. Bookmarked');
+    bookmarked.setAttribute('data-testid', 'removeBookmark');
+    await flushMutations();
+    vi.advanceTimersByTime(500);
+
+    expect(onDetected).not.toHaveBeenCalled();
+    expect(onRemoved).not.toHaveBeenCalled();
+  });
+
   it('cancels a bookmark removed again before the debounce', async () => {
     button.setAttribute('data-testid', 'removeBookmark');
     await flushMutations();

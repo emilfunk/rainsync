@@ -36,7 +36,7 @@ export const SELECTORS = {
 /**
  * Attributes to watch for changes
  */
-export const WATCHED_ATTRIBUTES = ['data-testid', 'aria-label'] as const;
+export const WATCHED_ATTRIBUTES = ['data-testid'] as const;
 
 /**
  * CSS class patterns (if needed)
