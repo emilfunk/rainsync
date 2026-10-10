@@ -8,10 +8,11 @@ export class TweetExtractor {
    */
   extractTweet(tweetElement: Element): Tweet | null {
     try {
-      const id = this.extractTweetId(tweetElement);
-      const url = this.extractTweetUrl(tweetElement, id);
-      const text = this.extractTweetText(tweetElement);
       const author = this.extractAuthor(tweetElement);
+      const tweetPath = this.findTweetPath(tweetElement, author?.handle);
+      const id = tweetPath?.id ?? null;
+      const url = tweetPath ? this.toFullUrl(tweetPath.path) : null;
+      const text = this.extractTweetText(tweetElement);
       const timestamp = this.extractTimestamp(tweetElement);
       const quotedTweet = this.extractQuotedTweet(tweetElement);
       const isRetweet = this.isRetweet(tweetElement);
@@ -40,39 +41,44 @@ export class TweetExtractor {
   }
 
   /**
-   * Extract tweet ID from the tweet link
+   * Find the tweet's own "/user/status/id" path.
+   * X doesn't always wrap the timestamp in a link, so fall back to other
+   * status links of the same author, any status link outside a quoted
+   * tweet, and finally the page address when this is the tweet's own page.
    */
-  private extractTweetId(element: Element): string | null {
-    const timeElement = element.querySelector(SELECTORS.TIMESTAMP);
-    const tweetLink = timeElement?.closest('a');
-    const href = tweetLink?.getAttribute('href');
+  private findTweetPath(element: Element, handle?: string): { path: string; id: string } | null {
+    const STATUS_PATH = /^\/([^/?#]+)\/status\/(\d+)/;
+    const parse = (href: string | null | undefined) => {
+      const match = href?.match(STATUS_PATH);
+      return match ? { path: `/${match[1]}/status/${match[2]}`, id: match[2], user: match[1] } : null;
+    };
 
-    if (href) {
-      // Tweet URLs are in format: /username/status/1234567890
-      const match = href.match(/\/status\/(\d+)/);
-      return match?.[1] || null;
-    }
+    const fromTime = parse(element.querySelector(SELECTORS.TIMESTAMP)?.closest('a')?.getAttribute('href'));
+    if (fromTime) return fromTime;
+
+    const links = Array.from(element.querySelectorAll('a[href*="/status/"]'))
+      .filter((link) => !link.closest(SELECTORS.QUOTED_TWEET))
+      .map((link) => parse(link.getAttribute('href')))
+      .filter((link): link is NonNullable<typeof link> => link !== null);
+
+    const user = handle?.replace(/^@/, '').toLowerCase();
+    const byAuthor = links.find((link) => link.user.toLowerCase() === user);
+    if (byAuthor) return byAuthor;
+    if (links[0]) return links[0];
+
+    // Only the tweet open on its own page; replies below it have their own links
+    const fromPage = parse(window.location.pathname);
+    if (fromPage && fromPage.user.toLowerCase() === user) return fromPage;
 
     return null;
   }
 
   /**
-   * Construct the full tweet URL
+   * Turn a tweet path into a full URL on the current site
    */
-  private extractTweetUrl(element: Element, tweetId: string | null): string | null {
-    if (!tweetId) return null;
-
-    const timeElement = element.querySelector(SELECTORS.TIMESTAMP);
-    const tweetLink = timeElement?.closest('a');
-    const href = tweetLink?.getAttribute('href');
-
-    if (href) {
-      // Convert to full URL
-      const baseUrl = window.location.hostname === 'twitter.com' ? 'https://twitter.com' : 'https://x.com';
-      return `${baseUrl}${href}`;
-    }
-
-    return null;
+  private toFullUrl(path: string): string {
+    const baseUrl = window.location.hostname === 'twitter.com' ? 'https://twitter.com' : 'https://x.com';
+    return `${baseUrl}${path}`;
   }
 
   /**
