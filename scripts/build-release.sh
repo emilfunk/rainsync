@@ -34,20 +34,24 @@ echo ""
 
 # Verify critical files exist
 echo "🔍 Verifying build output..."
-REQUIRED_FILES=(
-    "dist/manifest.json"
-    "dist/src/background/index.js"
-    "dist/src/content/twitter.js"
-    "dist/src/popup/index.html"
-    "dist/src/options/index.html"
-)
-
-for file in "${REQUIRED_FILES[@]}"; do
-    if [ ! -f "$file" ]; then
-        echo "❌ ERROR: Required file missing: $file"
-        exit 1
-    fi
-done
+# Check every file referenced by the built manifest (bundled names are hashed)
+if [ ! -f "dist/manifest.json" ]; then
+    echo "❌ ERROR: Required file missing: dist/manifest.json"
+    exit 1
+fi
+node -e '
+const fs = require("fs");
+const m = JSON.parse(fs.readFileSync("dist/manifest.json", "utf8"));
+const files = [
+  m.background?.service_worker,
+  m.action?.default_popup,
+  m.options_ui?.page,
+  ...(m.content_scripts ?? []).flatMap((c) => [...(c.js ?? []), ...(c.css ?? [])]),
+].filter(Boolean);
+const missing = files.filter((f) => !fs.existsSync("dist/" + f));
+for (const f of missing) console.error("❌ ERROR: Required file missing: dist/" + f);
+process.exit(missing.length ? 1 : 0);
+'
 echo "✅ All required files present"
 echo ""
 
