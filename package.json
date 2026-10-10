@@ -2,6 +2,7 @@
   "name": "rainsync",
   "version": "1.0.0",
   "description": "Chrome extension to sync Twitter bookmarks to Raindrop.io",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",

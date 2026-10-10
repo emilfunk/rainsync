@@ -60,7 +60,7 @@ echo "🎨 Checking for icons..."
 if [ ! -f "dist/icons/icon128.png" ]; then
     echo "⚠️  WARNING: Icons not found in dist/icons/"
     echo "   You need to create icons before submission!"
-    echo "   See public/icons/README.md for details"
+    echo "   See design/icons/README.md for details"
 else
     echo "✅ Icons found"
 fi
@@ -93,7 +93,7 @@ echo "📋 Next steps:"
 echo "   1. Test the extension:"
 echo "      - Extract: unzip $ZIP_NAME -d test-extension"
 echo "      - Load in Chrome: chrome://extensions (Developer mode → Load unpacked)"
-echo "   2. Create icons if not done (see public/icons/README.md)"
+echo "   2. Create icons if not done (see design/icons/README.md)"
 echo "   3. Take screenshots for Chrome Web Store"
 echo "   4. Review CHROME_STORE_SUBMISSION.md for submission steps"
 echo ""

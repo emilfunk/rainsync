@@ -26,7 +26,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/rainsync.git
+   git clone https://github.com/weppami/rainsync.git
    cd rainsync
    ```
 
@@ -312,7 +312,7 @@ If you see "Rate limit reached" errors:
 - [x] Production build script
 - [x] Manifest updated for production
 - [x] Documentation complete
-- [ ] Extension icons created (see `public/icons/README.md`)
+- [ ] Extension icons created (see `design/icons/README.md`)
 - [ ] Screenshots captured
 - [ ] Privacy policy hosted
 - [ ] Chrome Web Store submission
@@ -346,8 +346,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/rainsync/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/rainsync/discussions)
+- **Issues**: [GitHub Issues](https://github.com/weppami/rainsync/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/weppami/rainsync/discussions)
 
 ## Acknowledgments
 

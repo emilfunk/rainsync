@@ -101,7 +101,7 @@ All permissions are used solely for core functionality. No tracking or analytics
 ### 📊 Open Source
 
 RainSync is fully open source:
-- **GitHub**: github.com/yourusername/rainsync
+- **GitHub**: github.com/weppami/rainsync
 - **License**: MIT
 - **Contributions**: Welcome!
 
@@ -161,9 +161,9 @@ English
 
 ## Additional Information
 
-**Website**: https://github.com/yourusername/rainsync
+**Website**: https://github.com/weppami/rainsync
 
-**Support URL**: https://github.com/yourusername/rainsync/issues
+**Support URL**: https://github.com/weppami/rainsync/issues
 
 **Privacy Policy**: [Host PRIVACY.md on GitHub Pages or include direct link]
 

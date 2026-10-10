@@ -19,7 +19,7 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 - [x] Privacy Policy created (PRIVACY.md)
 - [x] Store listing content prepared (STORE_LISTING.md)
 - [ ] README updated with final information
-- [ ] LICENSE file included (MIT)
+- [x] LICENSE file included (MIT)
 - [ ] GitHub repository public and accessible
 
 ### ✅ Assets
@@ -68,10 +68,10 @@ Option A: GitHub Pages (Free)
 1. Create `docs` folder in repository
 2. Copy PRIVACY.md to `docs/privacy.md`
 3. Enable GitHub Pages in repository settings
-4. URL: `https://yourusername.github.io/rainsync/privacy`
+4. URL: `https://weppami.github.io/rainsync/privacy`
 
 Option B: GitHub Raw (Quick)
-- Direct link: `https://raw.githubusercontent.com/yourusername/rainsync/main/PRIVACY.md`
+- Direct link: `https://raw.githubusercontent.com/weppami/rainsync/main/PRIVACY.md`
 - Note: Less professional, but acceptable
 
 Option C: Your Own Website
@@ -149,8 +149,8 @@ unzip -l ../rainsync-v1.0.0.zip
 - Marquee: 1400x560 (optional)
 
 **Links:**
-- **Homepage**: https://github.com/yourusername/rainsync
-- **Support**: https://github.com/yourusername/rainsync/issues
+- **Homepage**: https://github.com/weppami/rainsync
+- **Support**: https://github.com/weppami/rainsync/issues
 
 ### Privacy Tab
 

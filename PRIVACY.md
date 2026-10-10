@@ -115,13 +115,13 @@ We may update this Privacy Policy occasionally. Changes will be reflected in the
 ## Open Source
 
 RainSync is open source. You can review the code to verify our privacy practices:
-- **Repository**: https://github.com/yourusername/rainsync
+- **Repository**: https://github.com/weppami/rainsync
 - **License**: MIT License
 
 ## Contact
 
 For privacy concerns or questions:
-- **GitHub Issues**: https://github.com/yourusername/rainsync/issues
+- **GitHub Issues**: https://github.com/weppami/rainsync/issues
 - **Email**: [Your contact email]
 
 ## Compliance
