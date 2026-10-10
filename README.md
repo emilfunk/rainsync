@@ -140,6 +140,8 @@ Click the RainSync extension icon to see:
 
 ## Bookmark Format
 
+Removing a bookmark on X does not delete it from Raindrop.io; RainSync only adds.
+
 Each synced bookmark includes:
 
 - **Title**: First 100 characters of the tweet

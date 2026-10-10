@@ -115,6 +115,8 @@ RainSync is fully open source:
 4. Bookmark is synced to your "Twitter Bookmarks" collection in Raindrop
 5. A confirmation appears on the page once it is saved ("Saved to Raindrop.io")
 
+Removing a bookmark on X does not delete it from Raindrop.io, so your archive stays intact.
+
 ### ⚙️ Requirements
 
 - Chrome, Brave, Edge, or any Chromium browser

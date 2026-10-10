@@ -17,7 +17,10 @@ class TwitterContentScript {
 
   constructor() {
     this.extractor = new TweetExtractor();
-    this.detector = new BookmarkDetector(this.handleBookmark.bind(this));
+    this.detector = new BookmarkDetector(
+      this.handleBookmark.bind(this),
+      this.handleBookmarkRemoved.bind(this)
+    );
   }
 
   /**
@@ -217,6 +220,13 @@ class TwitterContentScript {
     }
   }
 
+
+  /**
+   * RainSync keeps removed bookmarks in Raindrop, so say so instead of staying silent
+   */
+  private handleBookmarkRemoved(): void {
+    showPageToast("Removed from X bookmarks only. RainSync doesn't delete it from Raindrop.io.");
+  }
 
   /**
    * Show the outcome of a bookmark sync
