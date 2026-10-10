@@ -1,7 +1,13 @@
 import { logger } from '../shared/utils/logger';
 import { getStorage, setStorage } from '../shared/utils/storage';
 import { formatErrorMessage } from '../shared/utils/error-formatter';
-import { MessageType, Message, BookmarkDetectedPayload } from '../shared/types/messages';
+import {
+  MessageType,
+  Message,
+  BookmarkDetectedPayload,
+  ShowNotificationPayload,
+} from '../shared/types/messages';
+import { showNotification } from '../shared/utils/notifications';
 import { raindropApi } from './raindrop-api';
 import { CollectionManager } from './collection-manager';
 import { SyncManager } from './sync-manager';
@@ -63,6 +69,12 @@ async function handleMessage(message: Message, _sender: chrome.runtime.MessageSe
 
     case MessageType.BULK_SYNC_PROGRESS:
       return handleBulkSyncProgress();
+
+    case MessageType.SHOW_NOTIFICATION: {
+      const { title, message: text } = message.payload as ShowNotificationPayload;
+      await showNotification(title, text);
+      return { success: true };
+    }
 
     default:
       logger.warn('Unknown message type', { type: message.type });

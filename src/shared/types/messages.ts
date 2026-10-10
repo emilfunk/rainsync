@@ -9,11 +9,17 @@ export enum MessageType {
   VALIDATE_TOKEN = 'VALIDATE_TOKEN',
   START_BULK_SYNC = 'START_BULK_SYNC',
   BULK_SYNC_PROGRESS = 'BULK_SYNC_PROGRESS',
+  SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
 }
 
 export interface Message<T = unknown> {
   type: MessageType;
   payload?: T;
+}
+
+export interface ShowNotificationPayload {
+  title: string;
+  message: string;
 }
 
 export interface BookmarkDetectedPayload {

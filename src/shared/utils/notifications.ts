@@ -1,12 +1,23 @@
+import { MessageType } from '../types/messages';
+
 /**
  * Show a notification using Chrome notifications API
- * Works reliably across Chrome, Brave, Edge, etc.
+ * Content scripts have no access to chrome.notifications, so there the
+ * request is forwarded to the background service worker.
  */
 export async function showNotification(title: string, message: string): Promise<void> {
   try {
+    if (!chrome.notifications) {
+      await chrome.runtime.sendMessage({
+        type: MessageType.SHOW_NOTIFICATION,
+        payload: { title, message },
+      });
+      return;
+    }
+
     await chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="%231da1f2"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-size="64" font-family="Arial">R</text></svg>',
+      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
       title: title,
       message: message,
       priority: 1,
@@ -38,15 +49,5 @@ export async function showBulkSyncCompleteNotification(
   await showNotification(
     'Bulk Sync Complete',
     `Found ${total} bookmarks. Synced: ${synced}, Errors: ${errors}`
-  );
-}
-
-/**
- * Show extension reload notification
- */
-export async function showExtensionReloadNotification(): Promise<void> {
-  await showNotification(
-    'RainSync Updated',
-    'Please reload this page to continue syncing bookmarks.'
   );
 }

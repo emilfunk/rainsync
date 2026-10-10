@@ -201,8 +201,10 @@ rainsync/
 │       ├── utils/           # Utilities
 │       └── constants/       # Constants
 ├── tests/                   # Test files
-├── public/
-│   └── manifest.json        # Extension manifest
+├── public/icons/            # Extension icons
+├── store/                   # Chrome Web Store screenshots and promo tile
+├── docs/privacy.md          # Privacy policy (GitHub Pages)
+├── manifest.json            # Extension manifest
 └── dist/                    # Build output
 ```
 
@@ -214,6 +216,9 @@ npm run dev
 
 # Production build
 npm run build
+
+# Chrome Web Store package (rainsync-v<version>.zip)
+npm run build:release
 
 # Run tests
 npm test
@@ -230,10 +235,10 @@ npm run format
 
 ### Tech Stack
 
-- **TypeScript 5.3** - Type-safe development
+- **TypeScript 5.9** - Type-safe development
 - **React 18** - UI components
-- **Vite 5** - Build tooling
-- **Vitest** - Testing framework
+- **Vite 8** + **@crxjs/vite-plugin** - Build tooling
+- **Vitest 5** - Testing framework
 - **Chrome Manifest V3** - Latest extension standard
 - **Raindrop.io API** - Bookmark storage
 
@@ -308,13 +313,13 @@ If you see "Rate limit reached" errors:
 
 - [x] Privacy policy created
 - [x] Store listing content prepared
-- [x] Comprehensive tests (63 tests, 62 passing)
+- [x] Comprehensive tests (67 tests, all passing)
 - [x] Production build script
 - [x] Manifest updated for production
 - [x] Documentation complete
-- [ ] Extension icons created (see `design/icons/README.md`)
-- [ ] Screenshots captured
-- [ ] Privacy policy hosted
+- [x] Extension icons created
+- [x] Screenshots captured (`store/screenshots/`)
+- [x] Privacy policy hosted ([weppami.github.io/rainsync/privacy](https://weppami.github.io/rainsync/privacy))
 - [ ] Chrome Web Store submission
 
 See [CHROME_STORE_SUBMISSION.md](CHROME_STORE_SUBMISSION.md) for complete submission guide.

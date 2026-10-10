@@ -5,10 +5,8 @@ import { TagInputModal } from './tag-input-modal';
 import { MessageType } from '../shared/types/messages';
 import { Tweet } from '../shared/types/tweet';
 import { SELECTORS } from './dom-selectors';
-import {
-  showBulkSyncCompleteNotification,
-  showExtensionReloadNotification,
-} from '../shared/utils/notifications';
+import { showBulkSyncCompleteNotification } from '../shared/utils/notifications';
+import { showPageToast } from './page-toast';
 
 logger.info('RainSync content script loaded on', window.location.href);
 
@@ -200,7 +198,8 @@ class TwitterContentScript {
       // Handle extension context invalidated (extension was reloaded)
       if (errorMessage.includes('Extension context invalidated')) {
         logger.warn('Extension was reloaded. Please refresh this page to continue syncing.');
-        showExtensionReloadNotification();
+        // The extension can no longer be reached, so show the hint in the page itself
+        showPageToast('RainSync was updated. Reload this page to continue syncing bookmarks.');
         return;
       }
 

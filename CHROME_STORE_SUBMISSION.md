@@ -8,8 +8,8 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 - [ ] All features tested and working
 - [ ] No console errors in production build
-- [ ] All tests passing (`npm test`)
-- [ ] Production build created (`npm run build`)
+- [x] All tests passing (`npm test`)
+- [x] Production build created (`npm run build:release`)
 - [ ] Extension tested with clean install
 - [ ] Extension tested in incognito mode
 - [ ] Cross-browser testing (Chrome, Brave, Edge)
@@ -18,7 +18,7 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 - [x] Privacy Policy created (docs/privacy.md)
 - [x] Store listing content prepared (STORE_LISTING.md)
-- [ ] README updated with final information
+- [x] README updated with final information
 - [x] LICENSE file included (MIT)
 - [x] GitHub repository public and accessible
 
@@ -46,7 +46,7 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 - [x] Privacy policy hosted (or ready to host)
 - [x] Privacy policy URL ready
 - [ ] Terms of service (if applicable)
-- [ ] Permissions justified in documentation
+- [x] Permissions justified in documentation
 - [ ] No prohibited content
 - [ ] Complies with Chrome Web Store policies
 
@@ -54,11 +54,13 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 ### Step 1: Create Chrome Web Store Developer Account
 
-1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-2. Sign in with Google account
+1. Turn on 2-Step Verification for the Google account (required to publish)
+2. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 3. Pay one-time $5 developer registration fee
 4. Accept developer agreement
-5. Complete publisher information
+5. Complete publisher information and verify the contact email
+6. Declare trader / non-trader status (EU Digital Services Act); a free
+   hobby project is usually non-trader
 
 ### Step 2: Prepare Hosting
 
@@ -69,38 +71,18 @@ The policy lives in `docs/privacy.md` and is served by GitHub Pages
 
 ## Building for Submission
 
-### Step 1: Final Build
+### Step 1: Build the Submission Package
 
 ```bash
-# Clean previous builds
-rm -rf dist
-
-# Run production build
-npm run build
-
-# Verify build output
-ls -la dist/
+npm run build:release
 ```
 
-### Step 2: Create Submission Package
+This type-checks, builds, verifies every file referenced by
+`dist/manifest.json` exists, and creates `rainsync-v<version>.zip` with the
+extension files at the root (`manifest.json`, `service-worker-loader.js`,
+`assets/`, `src/`, `icons/`).
 
-```bash
-# Navigate to dist directory
-cd dist
-
-# Create zip file (DO NOT include dist folder itself)
-zip -r ../rainsync-v1.0.0.zip .
-
-# Verify zip contents
-unzip -l ../rainsync-v1.0.0.zip
-```
-
-**Important**:
-- The zip should contain the extension files at the root level
-- Do NOT include the `dist/` folder name in the zip
-- Correct structure: `rainsync-v1.0.0.zip` contains `manifest.json`, `src/`, `assets/`, etc.
-
-### Step 3: Test the Zip Package
+### Step 2: Test the Zip Package
 
 1. Open Chrome: `chrome://extensions`
 2. Enable "Developer mode"
@@ -115,7 +97,7 @@ unzip -l ../rainsync-v1.0.0.zip
 
 **Product Details:**
 - **Extension name**: RainSync
-- **Summary**: Automatically sync Twitter/X bookmarks to Raindrop.io in real-time (132 char max)
+- **Summary**: taken from `description` in `manifest.json` (132 char max), edit it there
 - **Category**: Productivity
 - **Language**: English
 
@@ -125,17 +107,17 @@ unzip -l ../rainsync-v1.0.0.zip
 - Include clear call-to-action
 
 **Icon:**
-- Upload icon128.png
+- Upload `public/icons/icon128.png`
 
-**Screenshots:**
-- Upload 3-5 screenshots (1280x800 or 640x400)
-- Order: Most important features first
-- Add captions for each screenshot
+**Screenshots** (`store/screenshots/`, 1280x800), in this order:
+1. `4-flow.png` — bookmark on X, saved in Raindrop
+2. `1-popup.png`
+3. `2-settings.png`
+4. `3-features.png`
 
-**Promotional Tiles (Optional but Recommended):**
-- Small tile: 440x280
-- Large tile: 920x680 (optional)
-- Marquee: 1400x560 (optional)
+**Promotional images:**
+- Small tile 440x280: `store/promo-tile-440x280.png`
+- Marquee 1400x560 (optional)
 
 **Links:**
 - **Homepage**: https://github.com/weppami/rainsync
@@ -187,6 +169,16 @@ only reads tweets the user bookmarks; it does not log browsing or clicks.
 Sending data to Raindrop.io at the user's request is the extension's single
 purpose, so it falls under the approved use cases.
 
+**Test instructions** (Test instructions tab):
+
+Reviewers need a Raindrop.io account to see a sync. Either give them the
+token of a dedicated test account (revoke it after review), or:
+
+1. Create a free account at raindrop.io
+2. Settings → Integrations → create an app → "Create test token"
+3. Paste the token in RainSync Settings and click Save
+4. Bookmark any tweet on x.com; it appears in the "Twitter Bookmarks" collection
+
 **Single Purpose:**
 - "Sync Twitter/X bookmarks to Raindrop.io"
 
@@ -231,7 +223,7 @@ purpose, so it falls under the approved use cases.
    - ✅ Store listing is accurate and clear
 
 5. **Poor Quality Icons/Screenshots**
-   - ⚠️ Ensure high-quality assets before submission
+   - ✅ Icons rebuilt from the 1024px source, screenshots from the real extension
 
 ## Post-Submission
 
@@ -286,17 +278,17 @@ purpose, so it falls under the approved use cases.
 ## Quick Reference: What You Need NOW
 
 ### Must Have Before Submission:
-1. ✅ Extension built and tested
+1. ✅ Extension built (`npm run build:release`)
 2. ✅ Privacy policy hosted (URL ready)
-3. ⚠️ Icons created (16, 32, 48, 128)
-4. ⚠️ Screenshots taken (3-5 images)
-5. ⚠️ Promotional tile created (440x280)
-6. ✅ Developer account created ($5 fee paid)
+3. ✅ Icons created (16, 32, 48, 128)
+4. ✅ Screenshots taken (4 images)
+5. ✅ Promotional tile created (440x280)
+6. ⚠️ Developer account created ($5 fee paid, 2-Step Verification on)
 7. ✅ Manifest finalized
-8. ⚠️ GitHub repository public
+8. ✅ GitHub repository public
+9. ⚠️ Final manual test of the zip
 
 ### Can Do After Initial Submission:
-- Large promotional tiles
 - Marquee banner
 - Video trailer
 - Translations
@@ -315,13 +307,14 @@ Before clicking "Submit for Review":
 
 - [ ] Extension zip file created and tested
 - [ ] All required icons uploaded
-- [ ] Screenshots uploaded with captions
+- [ ] Screenshots uploaded
 - [ ] Store listing description complete
 - [ ] Privacy policy URL added
 - [ ] All permissions justified
+- [ ] Test instructions filled in
 - [ ] Developer account verified
 - [ ] Payment method on file (for account)
-- [ ] GitHub repository public
-- [ ] README updated
+- [x] GitHub repository public
+- [x] README updated
 
 **Ready to submit? Let's make RainSync available to the world! 🚀**
