@@ -5,7 +5,7 @@ const TOAST_DURATION_MS = 8000;
  * Show a short message inside the page
  * Used when the extension context is gone and chrome.* APIs no longer work
  */
-export function showPageToast(message: string): void {
+export function showPageToast(message: string, variant: 'info' | 'error' = 'info'): void {
   // Only keep one toast on screen
   document.getElementById(TOAST_ID)?.remove();
 
@@ -20,7 +20,7 @@ export function showPageToast(message: string): void {
     transform: translateX(-50%);
     max-width: 90%;
     padding: 12px 20px;
-    background: #1d9bf0;
+    background: ${variant === 'error' ? '#f4212e' : '#1d9bf0'};
     color: white;
     border-radius: 9999px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);

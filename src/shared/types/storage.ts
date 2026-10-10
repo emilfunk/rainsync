@@ -36,4 +36,7 @@ export interface QueuedBookmark {
   lastAttempt?: number;
   error?: string;
   customTag?: string;
+  // Tab the bookmark came from, to report the result there
+  tabId?: number;
+  bulk?: boolean;
 }

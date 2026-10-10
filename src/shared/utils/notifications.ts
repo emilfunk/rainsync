@@ -29,16 +29,6 @@ export async function showNotification(title: string, message: string): Promise<
 }
 
 /**
- * Show a notification for successful bookmark sync
- */
-export async function showBookmarkSyncedNotification(count: number = 1): Promise<void> {
-  await showNotification(
-    'RainSync',
-    `${count} bookmark${count === 1 ? '' : 's'} synced to Raindrop.io`
-  );
-}
-
-/**
  * Show a notification for bulk sync completion
  */
 export async function showBulkSyncCompleteNotification(

@@ -85,7 +85,7 @@ That's it! Your bookmarks are automatically synced.
 ### 🔐 Permissions Explained
 
 - **Storage**: Save settings and sync queue locally
-- **Notifications**: Tell you when a bulk import finishes
+- **Notifications**: Report results when a bulk import finishes, or when the X tab was closed before a sync finished
 - **Twitter/X Access**: Detect bookmark actions and read tweet content
 - **Raindrop.io Access**: Send bookmarks to your account
 
@@ -113,7 +113,7 @@ RainSync is fully open source:
 2. RainSync detects the bookmark action
 3. Tweet data is extracted and queued
 4. Bookmark is synced to your "Twitter Bookmarks" collection in Raindrop
-5. The popup shows your sync status and total synced
+5. A confirmation appears on the page once it is saved ("Saved to Raindrop.io")
 
 ### ⚙️ Requirements
 

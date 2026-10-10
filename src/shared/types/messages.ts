@@ -10,6 +10,7 @@ export enum MessageType {
   START_BULK_SYNC = 'START_BULK_SYNC',
   BULK_SYNC_PROGRESS = 'BULK_SYNC_PROGRESS',
   SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
+  BOOKMARK_SYNC_RESULT = 'BOOKMARK_SYNC_RESULT',
 }
 
 export interface Message<T = unknown> {
@@ -25,6 +26,15 @@ export interface ShowNotificationPayload {
 export interface BookmarkDetectedPayload {
   tweet: Tweet;
   customTag?: string;
+  // Part of a bulk sync, which reports once at the end instead of per bookmark
+  bulk?: boolean;
+}
+
+export type BookmarkSyncStatus = 'saved' | 'duplicate' | 'failed';
+
+export interface BookmarkSyncResultPayload {
+  status: BookmarkSyncStatus;
+  error?: string;
 }
 
 export interface SyncStatusPayload {

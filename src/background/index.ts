@@ -5,6 +5,8 @@ import {
   MessageType,
   Message,
   BookmarkDetectedPayload,
+  BookmarkSyncResultPayload,
+  BookmarkSyncStatus,
   ShowNotificationPayload,
 } from '../shared/types/messages';
 import { showNotification } from '../shared/utils/notifications';
@@ -17,6 +19,35 @@ logger.info('RainSync background service worker starting...');
 // Initialize managers
 const collectionManager = new CollectionManager(raindropApi);
 const syncManager = new SyncManager(raindropApi, collectionManager);
+
+// Report each bookmark's result to the tab it came from.
+// Bulk syncs report once at the end, so their bookmarks are skipped here.
+syncManager.onResult((item, status, error) => {
+  if (item.bulk) return;
+  reportSyncResult(item.tabId, { status, error });
+});
+
+const RESULT_TEXT: Record<BookmarkSyncStatus, string> = {
+  saved: 'Bookmark saved to Raindrop.io',
+  duplicate: 'Bookmark already in Raindrop.io',
+  failed: 'Bookmark not saved to Raindrop.io',
+};
+
+async function reportSyncResult(tabId: number | undefined, result: BookmarkSyncResultPayload) {
+  if (tabId !== undefined) {
+    try {
+      await chrome.tabs.sendMessage(tabId, {
+        type: MessageType.BOOKMARK_SYNC_RESULT,
+        payload: result,
+      });
+      return;
+    } catch {
+      // Tab was closed or reloaded, fall back to a system notification
+    }
+  }
+  const text = RESULT_TEXT[result.status];
+  await showNotification('RainSync', result.error ? `${text}: ${result.error}` : text);
+}
 
 // Initialize sync manager
 (async () => {
@@ -53,7 +84,7 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
   return true; // Keep channel open for async response
 });
 
-async function handleMessage(message: Message, _sender: chrome.runtime.MessageSender) {
+async function handleMessage(message: Message, sender: chrome.runtime.MessageSender) {
   switch (message.type) {
     case MessageType.VALIDATE_TOKEN:
       return handleValidateToken(message.payload as { token: string });
@@ -62,7 +93,7 @@ async function handleMessage(message: Message, _sender: chrome.runtime.MessageSe
       return handleSyncStatusRequest();
 
     case MessageType.BOOKMARK_DETECTED:
-      return handleBookmarkDetected(message.payload as BookmarkDetectedPayload);
+      return handleBookmarkDetected(message.payload as BookmarkDetectedPayload, sender.tab?.id);
 
     case MessageType.START_BULK_SYNC:
       return handleStartBulkSync();
@@ -103,9 +134,9 @@ async function handleValidateToken(payload: { token: string }) {
   }
 }
 
-async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
+async function handleBookmarkDetected(payload: BookmarkDetectedPayload, tabId?: number) {
   try {
-    const { tweet, customTag } = payload;
+    const { tweet, customTag, bulk } = payload;
 
     // Check if sync is enabled
     const syncEnabled = await getStorage('syncEnabled');
@@ -124,7 +155,7 @@ async function handleBookmarkDetected(payload: BookmarkDetectedPayload) {
     }
 
     // Add to sync queue
-    await syncManager.addToQueue(tweet, customTag);
+    await syncManager.addToQueue(tweet, customTag, { tabId, bulk });
 
     logger.info('Bookmark queued for sync', { id: tweet.id, author: tweet.author.handle, customTag });
     return { success: true };

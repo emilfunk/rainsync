@@ -22,7 +22,7 @@ vi.mock('../src/shared/utils/logger', () => ({
 
 // Mock the notifications module
 vi.mock('../src/shared/utils/notifications', () => ({
-  showBookmarkSyncedNotification: vi.fn(),
+  showNotification: vi.fn(),
 }));
 
 describe('SyncManager - Custom Tag Integration', () => {
@@ -229,6 +229,31 @@ describe('SyncManager - Custom Tag Integration', () => {
       expect(raindropBookmark.tags[1]).toBe('tweet-deleted');
       expect(raindropBookmark.tags[2]).toBe('retweet');
       expect(raindropBookmark.tags[3]).toBe('my-tag');
+    });
+  });
+
+  describe('Sync result reporting', () => {
+    it('reports a saved bookmark with its source tab', async () => {
+      vi.mocked(mockRaindropApi.checkDuplicate).mockResolvedValue(false);
+      const listener = vi.fn();
+      syncManager.onResult(listener);
+
+      await syncManager.addToQueue(createMockTweet(), 'tag', { tabId: 7 });
+
+      await vi.waitFor(() =>
+        expect(listener).toHaveBeenCalledWith(expect.objectContaining({ tabId: 7 }), 'saved')
+      );
+    });
+
+    it('reports a duplicate without creating it again', async () => {
+      vi.mocked(mockRaindropApi.checkDuplicate).mockResolvedValue(true);
+      const listener = vi.fn();
+      syncManager.onResult(listener);
+
+      await syncManager.addToQueue(createMockTweet(), undefined, { tabId: 7 });
+
+      await vi.waitFor(() => expect(listener).toHaveBeenCalledWith(expect.anything(), 'duplicate'));
+      expect(mockRaindropApi.createBookmark).not.toHaveBeenCalled();
     });
   });
 });

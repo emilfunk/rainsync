@@ -2,7 +2,7 @@ import { logger } from '../shared/utils/logger';
 import { BookmarkDetector } from './bookmark-detector';
 import { TweetExtractor } from './tweet-extractor';
 import { TagInputModal } from './tag-input-modal';
-import { MessageType } from '../shared/types/messages';
+import { MessageType, BookmarkSyncResultPayload } from '../shared/types/messages';
 import { Tweet } from '../shared/types/tweet';
 import { SELECTORS } from './dom-selectors';
 import { showBulkSyncCompleteNotification } from '../shared/utils/notifications';
@@ -31,6 +31,11 @@ class TwitterContentScript {
 
     // Listen for bulk sync messages
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (message.type === MessageType.BOOKMARK_SYNC_RESULT) {
+        this.showSyncResult(message.payload as BookmarkSyncResultPayload);
+        return;
+      }
+
       if (message.type === MessageType.START_BULK_SYNC) {
         logger.info('Bulk sync triggered');
         this.startBulkSync().then(() => {
@@ -122,7 +127,7 @@ class TwitterContentScript {
       found++;
 
       try {
-        await this.sendToBackground(tweet);
+        await this.sendToBackground(tweet, null, true);
         synced++;
       } catch (error) {
         logger.error('Failed to sync tweet', error as Error, { id: tweet.id });
@@ -177,18 +182,22 @@ class TwitterContentScript {
   /**
    * Send tweet data to background script
    */
-  private async sendToBackground(tweet: Tweet, customTag?: string | null): Promise<void> {
+  private async sendToBackground(tweet: Tweet, customTag?: string | null, bulk = false): Promise<void> {
     try {
       const response = await chrome.runtime.sendMessage({
         type: MessageType.BOOKMARK_DETECTED,
         payload: {
           tweet,
           customTag: customTag || undefined,
+          bulk,
         },
       });
 
       if (response?.error) {
         logger.error('Background script returned error', undefined, response.error);
+        if (!bulk) {
+          showPageToast(`Bookmark not saved: ${response.error}`, 'error');
+        }
       } else {
         logger.info('Tweet sent to background successfully');
       }
@@ -208,6 +217,19 @@ class TwitterContentScript {
     }
   }
 
+
+  /**
+   * Show the outcome of a bookmark sync
+   */
+  private showSyncResult(result: BookmarkSyncResultPayload): void {
+    if (result.status === 'saved') {
+      showPageToast('Saved to Raindrop.io');
+    } else if (result.status === 'duplicate') {
+      showPageToast('Already in Raindrop.io');
+    } else {
+      showPageToast(`Not saved to Raindrop.io: ${result.error ?? 'unknown error'}`, 'error');
+    }
+  }
 
   /**
    * Cleanup

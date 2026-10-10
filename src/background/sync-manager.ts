@@ -1,21 +1,27 @@
 import { Tweet } from '../shared/types/tweet';
 import { RaindropBookmark } from '../shared/types/raindrop';
 import { QueuedBookmark } from '../shared/types/storage';
+import { BookmarkSyncStatus } from '../shared/types/messages';
 import { getStorage, setStorage } from '../shared/utils/storage';
 import { logger } from '../shared/utils/logger';
 import { formatErrorMessage } from '../shared/utils/error-formatter';
-import { showBookmarkSyncedNotification } from '../shared/utils/notifications';
 import { RATE_LIMIT_DELAY_MS } from '../shared/constants/api';
 import { MAX_RETRY_ATTEMPTS } from '../shared/constants/retry';
 import { RaindropApi } from './raindrop-api';
 import { CollectionManager } from './collection-manager';
 import { RetryHandler } from './retry-handler';
 
+export type SyncResultListener = (
+  item: QueuedBookmark,
+  status: BookmarkSyncStatus,
+  error?: string
+) => void;
+
 export class SyncManager {
   private queue: QueuedBookmark[] = [];
   private isProcessing = false;
   private retryHandler: RetryHandler;
-  private sessionSyncedCount = 0;
+  private resultListener?: SyncResultListener;
 
   constructor(
     private raindropApi: RaindropApi,
@@ -52,9 +58,20 @@ export class SyncManager {
   }
 
   /**
+   * Called when a bookmark is saved, found to be a duplicate, or given up on
+   */
+  onResult(listener: SyncResultListener): void {
+    this.resultListener = listener;
+  }
+
+  /**
    * Add a tweet to the sync queue
    */
-  async addToQueue(tweet: Tweet, customTag?: string): Promise<void> {
+  async addToQueue(
+    tweet: Tweet,
+    customTag?: string,
+    source: { tabId?: number; bulk?: boolean } = {}
+  ): Promise<void> {
     logger.info('Adding tweet to queue', { id: tweet.id, author: tweet.author.handle, customTag });
 
     const queuedBookmark: QueuedBookmark = {
@@ -62,6 +79,7 @@ export class SyncManager {
       addedAt: Date.now(),
       retryCount: 0,
       customTag,
+      ...source,
     };
 
     this.queue.push(queuedBookmark);
@@ -96,7 +114,7 @@ export class SyncManager {
       const item = this.queue[0];
 
       try {
-        await this.syncBookmark(item);
+        const status = await this.syncBookmark(item);
 
         // Success - remove from queue
         this.queue.shift();
@@ -108,13 +126,7 @@ export class SyncManager {
         await setStorage('lastSyncTime', Date.now());
         await setStorage('lastError', undefined);
 
-        // Increment session counter
-        this.sessionSyncedCount++;
-
-        // Show notification for first sync, then every 10 syncs
-        if (this.sessionSyncedCount === 1 || this.sessionSyncedCount % 10 === 0) {
-          showBookmarkSyncedNotification(this.sessionSyncedCount === 1 ? 1 : 10);
-        }
+        this.resultListener?.(item, status);
 
         logger.info('Bookmark synced successfully', {
           url: item.tweet.url,
@@ -137,6 +149,7 @@ export class SyncManager {
             url: item.tweet.url,
           });
           this.queue.shift();
+          this.resultListener?.(item, 'failed', userErrorMessage);
         }
 
         await this.saveQueue();
@@ -162,10 +175,10 @@ export class SyncManager {
   /**
    * Sync a single bookmark to Raindrop
    */
-  private async syncBookmark(queuedBookmark: QueuedBookmark): Promise<void> {
+  private async syncBookmark(queuedBookmark: QueuedBookmark): Promise<'saved' | 'duplicate'> {
     const { tweet, customTag } = queuedBookmark;
 
-    await this.retryHandler.executeWithRetry(async () => {
+    return this.retryHandler.executeWithRetry(async () => {
       // Ensure collection exists
       const collectionId = await this.collectionManager.ensureCollection();
 
@@ -173,7 +186,7 @@ export class SyncManager {
       const isDuplicate = await this.raindropApi.checkDuplicate(tweet.url, collectionId);
       if (isDuplicate) {
         logger.info('Bookmark already exists in Raindrop, skipping', { url: tweet.url });
-        return;
+        return 'duplicate' as const;
       }
 
       // Convert tweet to Raindrop bookmark
@@ -183,6 +196,7 @@ export class SyncManager {
       await this.raindropApi.createBookmark(raindropBookmark);
 
       logger.info('Bookmark created in Raindrop', { url: tweet.url, customTag });
+      return 'saved' as const;
     }, `sync bookmark ${tweet.url}`);
   }
 
