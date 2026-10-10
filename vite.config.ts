@@ -6,6 +6,11 @@ import manifest from './manifest.json' with { type: 'json' };
 
 export default defineConfig({
   plugins: [react(), crx({ manifest: manifest as unknown as ManifestV3Export })],
+  build: {
+    // Chromium rejects modulepreload links to extension files ("cross-world
+    // extension resource mismatch"); files load locally, so preloading gains nothing
+    modulePreload: false,
+  },
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, 'src'),

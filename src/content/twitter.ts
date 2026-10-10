@@ -159,6 +159,7 @@ class TwitterContentScript {
 
     if (!tweet) {
       logger.warn('Failed to extract tweet data');
+      showPageToast("RainSync couldn't read this tweet, so it wasn't saved.", 'error');
       return;
     }
 

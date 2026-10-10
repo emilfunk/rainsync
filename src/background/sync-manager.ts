@@ -205,7 +205,7 @@ export class SyncManager {
    */
   private convertTweetToRaindrop(tweet: Tweet, collectionId: number, customTag?: string): RaindropBookmark {
     // Title: First 100 chars or first line of tweet text
-    let title = tweet.text.substring(0, 100).split('\n')[0];
+    let title = tweet.text.substring(0, 100).split('\n')[0] || `Post by ${tweet.author.handle}`;
     if (tweet.isDeleted) {
       title = `[DELETED] ${title}`;
     }
@@ -223,10 +223,10 @@ export class SyncManager {
     }
 
     // Excerpt/Notes: Full tweet text + quote tweet if applicable + metadata
-    let excerpt = tweet.text;
+    let excerpt = tweet.text || '(No text: photo or video only)';
 
     if (tweet.quotedTweet) {
-      excerpt += `\n\nQuoted tweet from ${tweet.quotedTweet.author.handle}:\n${tweet.quotedTweet.text}`;
+      excerpt += `\n\nQuoted tweet from ${tweet.quotedTweet.author.handle}:\n${tweet.quotedTweet.text || '(No text)'}`;
     }
 
     excerpt += `\n\nAuthor: ${tweet.author.displayName} (${tweet.author.handle})`;

@@ -232,6 +232,19 @@ describe('SyncManager - Custom Tag Integration', () => {
     });
   });
 
+  describe('Tweets without text', () => {
+    it('uses the author as title and notes the missing text', () => {
+      const tweet = createMockTweet();
+      tweet.text = '';
+
+      const convertMethod = (syncManager as any).convertTweetToRaindrop.bind(syncManager);
+      const raindropBookmark = convertMethod(tweet, 12345);
+
+      expect(raindropBookmark.title).toBe('Post by @testuser');
+      expect(raindropBookmark.excerpt.startsWith('(No text: photo or video only)')).toBe(true);
+    });
+  });
+
   describe('Sync result reporting', () => {
     it('reports a saved bookmark with its source tab', async () => {
       vi.mocked(mockRaindropApi.checkDuplicate).mockResolvedValue(false);

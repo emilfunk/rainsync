@@ -17,7 +17,8 @@ export class TweetExtractor {
       const isRetweet = this.isRetweet(tweetElement);
       const isDeleted = this.isDeleted(tweetElement);
 
-      if (!id || !url || !text || !author) {
+      // Text is optional: photo and video tweets have none
+      if (!id || !url || !author) {
         logger.warn('Failed to extract required tweet data', { id, url, hasText: !!text, hasAuthor: !!author });
         return null;
       }
@@ -25,7 +26,7 @@ export class TweetExtractor {
       return {
         id,
         url,
-        text,
+        text: text ?? '',
         author,
         timestamp,
         quotedTweet: quotedTweet || undefined,
@@ -99,12 +100,13 @@ export class TweetExtractor {
       return null;
     }
 
-    // Get display name from the user name element
-    const displayName = userNameElement.textContent?.trim();
-
-    // Get handle from the author link
+    // The first profile link holds the display name. The whole User-Name block
+    // also contains the handle and the time ("Name@handle·2h"), so only fall
+    // back to the text before the handle.
     const authorLink = element.querySelector(SELECTORS.AUTHOR_LINK);
     const href = authorLink?.getAttribute('href');
+    const displayName =
+      authorLink?.textContent?.trim() || userNameElement.textContent?.split('@')[0].trim();
 
     if (!href || !displayName) {
       return null;
@@ -154,12 +156,12 @@ export class TweetExtractor {
     // Extract author from quoted tweet
     const author = this.extractAuthor(quotedElement);
 
-    if (!text || !author) {
+    if (!author) {
       return null;
     }
 
     return {
-      text,
+      text: text ?? '',
       author,
     };
   }
