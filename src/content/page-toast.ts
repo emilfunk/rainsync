@@ -2,8 +2,8 @@ const TOAST_ID = 'rainsync-page-toast';
 const TOAST_DURATION_MS = 8000;
 
 /**
- * Show a short message inside the page
- * Used when the extension context is gone and chrome.* APIs no longer work
+ * Show a short message at the top of the page (X uses the bottom for its own toasts)
+ * Used for sync results, and when the extension context is gone and chrome.* APIs no longer work
  */
 export function showPageToast(message: string, variant: 'info' | 'error' = 'info'): void {
   // Only keep one toast on screen
@@ -15,7 +15,7 @@ export function showPageToast(message: string, variant: 'info' | 'error' = 'info
   toast.textContent = message;
   toast.style.cssText = `
     position: fixed;
-    bottom: 24px;
+    top: 16px;
     left: 50%;
     transform: translateX(-50%);
     max-width: 90%;
