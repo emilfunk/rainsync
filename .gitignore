@@ -37,3 +37,7 @@ coverage
 # Temp files
 .cache
 rainsync-*.zip
+
+# Local notes and design source
+/fup.md
+/Firefly_*.png
