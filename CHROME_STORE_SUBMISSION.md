@@ -24,13 +24,13 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 ### ✅ Assets
 
-- [ ] Icon 16x16 (icon16.png)
-- [ ] Icon 32x32 (icon32.png)
-- [ ] Icon 48x48 (icon48.png)
-- [ ] Icon 128x128 (icon128.png)
-- [ ] Store icon 128x128 (for Chrome Web Store)
-- [ ] Small promotional tile 440x280
-- [ ] 3-5 screenshots (1280x800 or 640x400)
+- [x] Icon 16x16 (icon16.png)
+- [x] Icon 32x32 (icon32.png)
+- [x] Icon 48x48 (icon48.png)
+- [x] Icon 128x128 (icon128.png)
+- [x] Store icon 128x128 (public/icons/icon128.png)
+- [x] Small promotional tile 440x280 (store/promo-tile-440x280.png)
+- [x] 3-5 screenshots (store/screenshots/, 1280x800)
 
 ### ✅ Manifest
 
