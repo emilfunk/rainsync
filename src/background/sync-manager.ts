@@ -2,7 +2,7 @@ import { Tweet } from '../shared/types/tweet';
 import { RaindropBookmark } from '../shared/types/raindrop';
 import { QueuedBookmark } from '../shared/types/storage';
 import { BookmarkSyncStatus } from '../shared/types/messages';
-import { getStorage, setStorage } from '../shared/utils/storage';
+import { getStorage, setStorage, removeStorage } from '../shared/utils/storage';
 import { logger } from '../shared/utils/logger';
 import { formatErrorMessage } from '../shared/utils/error-formatter';
 import { RATE_LIMIT_DELAY_MS } from '../shared/constants/api';
@@ -124,7 +124,8 @@ export class SyncManager {
         const totalSynced = (await getStorage('totalSynced')) || 0;
         await setStorage('totalSynced', totalSynced + 1);
         await setStorage('lastSyncTime', Date.now());
-        await setStorage('lastError', undefined);
+        // set() skips undefined values, so the key has to be removed
+        await removeStorage('lastError');
 
         this.resultListener?.(item, status);
 

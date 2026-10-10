@@ -1,5 +1,5 @@
 import { logger } from '../shared/utils/logger';
-import { getStorage, setStorage } from '../shared/utils/storage';
+import { getStorage, setStorage, removeStorage } from '../shared/utils/storage';
 import { formatErrorMessage } from '../shared/utils/error-formatter';
 import {
   MessageType,
@@ -120,6 +120,8 @@ async function handleValidateToken(payload: { token: string }) {
     if (isValid) {
       // Set the token in storage
       await setStorage('raindropToken', payload.token);
+      // A previous "token not configured" or auth error no longer applies
+      await removeStorage('lastError');
       logger.info('Token validated and saved');
       return { valid: true };
     } else {

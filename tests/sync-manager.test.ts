@@ -3,11 +3,13 @@ import { SyncManager } from '../src/background/sync-manager';
 import { RaindropApi } from '../src/background/raindrop-api';
 import { CollectionManager } from '../src/background/collection-manager';
 import { Tweet } from '../src/shared/types/tweet';
+import { removeStorage } from '../src/shared/utils/storage';
 
 // Mock the storage module
 vi.mock('../src/shared/utils/storage', () => ({
   getStorage: vi.fn(),
   setStorage: vi.fn(),
+  removeStorage: vi.fn(),
 }));
 
 // Mock the logger module
@@ -256,6 +258,17 @@ describe('SyncManager - Custom Tag Integration', () => {
       await vi.waitFor(() =>
         expect(listener).toHaveBeenCalledWith(expect.objectContaining({ tabId: 7 }), 'saved')
       );
+    });
+
+    it('clears a previous error after a successful sync', async () => {
+      vi.mocked(mockRaindropApi.checkDuplicate).mockResolvedValue(false);
+      const listener = vi.fn();
+      syncManager.onResult(listener);
+
+      await syncManager.addToQueue(createMockTweet());
+
+      await vi.waitFor(() => expect(listener).toHaveBeenCalledWith(expect.anything(), 'saved'));
+      expect(removeStorage).toHaveBeenCalledWith('lastError');
     });
 
     it('reports a duplicate without creating it again', async () => {
