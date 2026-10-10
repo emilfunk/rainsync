@@ -16,11 +16,11 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 ### ✅ Documentation
 
-- [x] Privacy Policy created (PRIVACY.md)
+- [x] Privacy Policy created (docs/privacy.md)
 - [x] Store listing content prepared (STORE_LISTING.md)
 - [ ] README updated with final information
 - [x] LICENSE file included (MIT)
-- [ ] GitHub repository public and accessible
+- [x] GitHub repository public and accessible
 
 ### ✅ Assets
 
@@ -44,7 +44,7 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 ### ✅ Legal & Compliance
 
 - [x] Privacy policy hosted (or ready to host)
-- [ ] Privacy policy URL ready
+- [x] Privacy policy URL ready
 - [ ] Terms of service (if applicable)
 - [ ] Permissions justified in documentation
 - [ ] No prohibited content
@@ -62,21 +62,10 @@ This document contains everything you need to submit RainSync to the Chrome Web 
 
 ### Step 2: Prepare Hosting
 
-**Privacy Policy URL Options:**
+**Privacy Policy URL:** https://weppami.github.io/rainsync/privacy
 
-Option A: GitHub Pages (Free)
-1. Create `docs` folder in repository
-2. Copy PRIVACY.md to `docs/privacy.md`
-3. Enable GitHub Pages in repository settings
-4. URL: `https://weppami.github.io/rainsync/privacy`
-
-Option B: GitHub Raw (Quick)
-- Direct link: `https://raw.githubusercontent.com/weppami/rainsync/main/PRIVACY.md`
-- Note: Less professional, but acceptable
-
-Option C: Your Own Website
-- Host on your domain
-- Must be publicly accessible
+The policy lives in `docs/privacy.md` and is served by GitHub Pages
+(Settings → Pages → Deploy from branch `main`, folder `/docs`).
 
 ## Building for Submission
 
@@ -155,7 +144,7 @@ unzip -l ../rainsync-v1.0.0.zip
 ### Privacy Tab
 
 **Privacy Policy:**
-- URL: [Your hosted privacy policy URL]
+- URL: https://weppami.github.io/rainsync/privacy
 - Check box: "This extension complies with the Chrome Web Store policies"
 
 **Permissions Justification:**
@@ -174,10 +163,29 @@ For each permission, provide clear justification:
 4. **host_permissions: api.raindrop.io**
    - "Required to communicate with Raindrop.io API to sync bookmarks to user's account"
 
-**Data Usage:**
-- "This extension does not collect or transmit user data to external servers"
-- "All data is stored locally or sent directly to user's Raindrop.io account"
-- "No analytics or tracking"
+**Remote code:** No, I am not using remote code. All JavaScript is bundled in the package.
+
+**Data Usage — what to tick:**
+
+The form asks what the extension *handles*, not only what reaches your servers.
+RainSync has no servers, but it does handle these, so tick them:
+
+- ☑ **Authentication information** — the Raindrop.io API token the user enters,
+  stored in `chrome.storage.local` and sent only to api.raindrop.io
+- ☑ **Website content** — tweet text, author name/handle, URL and quoted-tweet
+  text read from Twitter/X and sent to the user's own Raindrop.io account
+
+Leave the rest unticked (personally identifiable info, health, financial,
+personal communications, location, web history, user activity). RainSync
+only reads tweets the user bookmarks; it does not log browsing or clicks.
+
+**Certify all three disclosures:**
+- ☑ I do not sell or transfer user data to third parties, outside of the approved use cases
+- ☑ I do not use or transfer user data for purposes that are unrelated to my item's single purpose
+- ☑ I do not use or transfer user data to determine creditworthiness or for lending purposes
+
+Sending data to Raindrop.io at the user's request is the extension's single
+purpose, so it falls under the approved use cases.
 
 **Single Purpose:**
 - "Sync Twitter/X bookmarks to Raindrop.io"
@@ -217,7 +225,7 @@ For each permission, provide clear justification:
    - ✅ Each permission is justified
 
 3. **Privacy Policy Missing**
-   - ✅ PRIVACY.md created and ready to host
+   - ✅ Hosted at https://weppami.github.io/rainsync/privacy
 
 4. **Misleading Descriptions**
    - ✅ Store listing is accurate and clear

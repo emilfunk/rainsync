@@ -1,6 +1,6 @@
 # Privacy Policy for RainSync
 
-**Last Updated: January 5, 2026**
+**Last Updated: October 10, 2026**
 
 ## Introduction
 
@@ -33,10 +33,10 @@ RainSync collects and stores the following data **locally on your device only**:
 
 ## Data Storage
 
-All data is stored locally using Chrome's encrypted storage (`chrome.storage.local`):
+All data is stored locally using Chrome's extension storage (`chrome.storage.local`):
 
 - **Location**: Your browser's local storage
-- **Encryption**: Chrome provides encryption for extension storage
+- **Isolation**: Other websites and extensions cannot read it
 - **Persistence**: Data remains until you uninstall the extension or clear it manually
 - **Access**: Only accessible by the RainSync extension
 
@@ -99,7 +99,7 @@ You have complete control over your data:
 
 We implement security best practices:
 
-1. **Encrypted Storage**: Chrome encrypts extension storage
+1. **Local Storage**: Data is kept in Chrome's extension storage, isolated from websites and other extensions
 2. **Direct API Communication**: No intermediary servers
 3. **Token Security**: API tokens stored securely in Chrome storage
 4. **No External Tracking**: No third-party analytics or tracking scripts
@@ -122,7 +122,6 @@ RainSync is open source. You can review the code to verify our privacy practices
 
 For privacy concerns or questions:
 - **GitHub Issues**: https://github.com/weppami/rainsync/issues
-- **Email**: [Your contact email]
 
 ## Compliance
 

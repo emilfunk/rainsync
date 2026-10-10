@@ -165,7 +165,7 @@ English
 
 **Support URL**: https://github.com/weppami/rainsync/issues
 
-**Privacy Policy**: [Host PRIVACY.md on GitHub Pages or include direct link]
+**Privacy Policy**: https://weppami.github.io/rainsync/privacy
 
 ## Keywords/Tags
 - twitter
