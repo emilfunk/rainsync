@@ -9,7 +9,7 @@ echo "🚀 Building RainSync for Chrome Web Store submission..."
 echo ""
 
 # Get version from manifest
-VERSION=$(node -p "require('./public/manifest.json').version")
+VERSION=$(node -p "require('./manifest.json').version")
 echo "📦 Version: $VERSION"
 echo ""
 

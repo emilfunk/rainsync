@@ -353,7 +353,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 - Built with [Anthropic Claude](https://www.anthropic.com/claude)
 - Powered by [Raindrop.io API](https://developer.raindrop.io/)
-- Uses [@samrum/vite-plugin-web-extension](https://github.com/samrum/vite-plugin-web-extension)
+- Uses [@crxjs/vite-plugin](https://github.com/crxjs/chrome-extension-tools)
 
 ---
 

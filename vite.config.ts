@@ -1,20 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import webExtension from '@samrum/vite-plugin-web-extension';
-import manifestJson from './public/manifest.json';
+import { crx, type ManifestV3Export } from '@crxjs/vite-plugin';
+import manifest from './manifest.json' with { type: 'json' };
 
 export default defineConfig({
-  plugins: [
-    react(),
-    webExtension({
-      manifest: manifestJson as any,
-    }),
-  ],
+  plugins: [react(), crx({ manifest: manifest as unknown as ManifestV3Export })],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      '@shared': resolve(__dirname, 'src/shared'),
+      '@': resolve(import.meta.dirname, 'src'),
+      '@shared': resolve(import.meta.dirname, 'src/shared'),
     },
   },
 });

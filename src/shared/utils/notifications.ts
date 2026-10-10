@@ -11,7 +11,7 @@ export async function showNotification(title: string, message: string): Promise<
       message: message,
       priority: 1,
     });
-  } catch (error) {
+  } catch {
     // Fallback: log to console if notifications fail
     console.log(`[RainSync] ${title}: ${message}`);
   }
