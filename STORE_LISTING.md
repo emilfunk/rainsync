@@ -1,12 +1,15 @@
 # Chrome Web Store Listing Content
 
 ## Extension Name
-**RainSync - Twitter Bookmarks to Raindrop.io**
+**RainSync**
 
-Alternative: **RainSync**
+The store takes the name from `name` in `manifest.json`.
 
-## Tagline (Short Description)
-Automatically sync your Twitter/X bookmarks to Raindrop.io in real-time. Never lose a saved tweet again.
+## Summary (Short Description)
+Automatically sync Twitter bookmarks to Raindrop.io in real-time
+
+The store takes the summary from `description` in `manifest.json` (132 characters max).
+To change it, edit the manifest and rebuild with `npm run build:release`.
 
 ## Detailed Description
 
@@ -24,7 +27,7 @@ Import all your existing Twitter bookmarks at once with our intelligent auto-scr
 
 **🏷️ Smart Organization**
 - Automatic tagging (`twitter`, `tweet-deleted`, `retweet`)
-- Add custom tags for each bookmark
+- Add an optional custom tag when you bookmark
 - All bookmarks organized in a dedicated collection
 - Full tweet text, author info, and timestamps preserved
 
@@ -78,12 +81,11 @@ That's it! Your bookmarks are automatically synced.
 - ⚡ Fast and lightweight
 - 🔓 Open source and transparent
 - 📈 Active development
-- 💬 Community support
 
 ### 🔐 Permissions Explained
 
 - **Storage**: Save settings and sync queue locally
-- **Notifications**: Show sync status updates
+- **Notifications**: Tell you when a bulk import finishes
 - **Twitter/X Access**: Detect bookmark actions and read tweet content
 - **Raindrop.io Access**: Send bookmarks to your account
 
@@ -111,7 +113,7 @@ RainSync is fully open source:
 2. RainSync detects the bookmark action
 3. Tweet data is extracted and queued
 4. Bookmark is synced to your "Twitter Bookmarks" collection in Raindrop
-5. You receive a notification confirming the sync
+5. The popup shows your sync status and total synced
 
 ### ⚙️ Requirements
 
@@ -122,8 +124,7 @@ RainSync is fully open source:
 ### 🆘 Support
 
 - **Documentation**: Full guide in README
-- **Issues**: Report bugs on GitHub
-- **Questions**: GitHub Discussions
+- **Issues and questions**: GitHub Issues
 
 ### 🚀 Coming Soon
 
@@ -147,17 +148,16 @@ If RainSync helps you, please leave a review and rating. It helps others discove
 ## Language
 English
 
-## Screenshots Needed
-1. Extension popup showing sync status
-2. Twitter bookmark action with modal
-3. Settings/Options page
-4. Raindrop.io with synced bookmarks
-5. Bulk sync in progress
+## Screenshots
+1280x800, in `store/screenshots/`. Upload in this order:
+1. `4-flow.png`: bookmark on X with the tag modal, saved in Raindrop.io
+2. `1-popup.png`: extension popup with sync status
+3. `2-settings.png`: settings page
+4. `3-features.png`: feature overview
 
 ## Promotional Images
-- 440x280 small promo tile
-- 920x680 marquee promo tile (optional)
-- 1400x560 marquee promo tile (optional)
+- Small promo tile 440x280: `store/promo-tile-440x280.png`
+- Marquee promo tile 1400x560 (optional, not made yet)
 
 ## Additional Information
 
@@ -168,6 +168,7 @@ English
 **Privacy Policy**: https://weppami.github.io/rainsync/privacy
 
 ## Keywords/Tags
+The store has no keyword field. Use these words naturally in the description.
 - twitter
 - bookmarks
 - raindrop
@@ -186,7 +187,7 @@ English
 - Anyone who bookmarks tweets regularly
 
 ## Unique Selling Points (USPs)
-1. Only extension that syncs Twitter bookmarks to Raindrop.io
+1. Purpose-built Twitter/X → Raindrop.io sync
 2. Real-time automatic sync
 3. Preserves deleted tweet content
 4. Custom tag support for organization
