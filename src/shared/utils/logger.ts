@@ -2,7 +2,7 @@ type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
 const LOG_PREFIX = '[RainSync]';
 
-function log(level: LogLevel, message: string, data?: any) {
+function log(level: LogLevel, message: string, data?: unknown) {
   const timestamp = new Date().toISOString();
   const prefix = `${LOG_PREFIX} [${timestamp}]`;
 
@@ -25,9 +25,9 @@ function log(level: LogLevel, message: string, data?: any) {
 }
 
 export const logger = {
-  info: (message: string, data?: any) => log('info', message, data),
-  warn: (message: string, data?: any) => log('warn', message, data),
-  error: (message: string, error?: Error | any, data?: any) => {
+  info: (message: string, data?: unknown) => log('info', message, data),
+  warn: (message: string, data?: unknown) => log('warn', message, data),
+  error: (message: string, error?: unknown, data?: Record<string, unknown>) => {
     if (error instanceof Error) {
       log('error', message, {
         error: error.message,
@@ -38,5 +38,5 @@ export const logger = {
       log('error', message, { error, ...data });
     }
   },
-  debug: (message: string, data?: any) => log('debug', message, data),
+  debug: (message: string, data?: unknown) => log('debug', message, data),
 };

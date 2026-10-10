@@ -50,13 +50,13 @@ chrome.runtime.onMessage.addListener((message: Message, sender, sendResponse) =>
 async function handleMessage(message: Message, _sender: chrome.runtime.MessageSender) {
   switch (message.type) {
     case MessageType.VALIDATE_TOKEN:
-      return handleValidateToken(message.payload);
+      return handleValidateToken(message.payload as { token: string });
 
     case MessageType.SYNC_STATUS_REQUEST:
       return handleSyncStatusRequest();
 
     case MessageType.BOOKMARK_DETECTED:
-      return handleBookmarkDetected(message.payload);
+      return handleBookmarkDetected(message.payload as BookmarkDetectedPayload);
 
     case MessageType.START_BULK_SYNC:
       return handleStartBulkSync();

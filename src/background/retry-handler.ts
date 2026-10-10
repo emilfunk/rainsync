@@ -47,7 +47,7 @@ export class RetryHandler {
   /**
    * Check if an error is permanent and should not be retried
    */
-  private isPermanentError(error: any): boolean {
+  private isPermanentError(error: unknown): boolean {
     // Authentication errors - don't retry
     if (error instanceof AuthError) {
       return true;
@@ -65,7 +65,7 @@ export class RetryHandler {
   /**
    * Check if an error is a rate limit error
    */
-  isRateLimitError(error: any): boolean {
+  isRateLimitError(error: unknown): boolean {
     return error instanceof RateLimitError;
   }
 

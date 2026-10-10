@@ -29,7 +29,7 @@ export class RaindropApi {
 
     try {
       // Test the token by fetching user info
-      const response = await this.request<{ result: boolean; user: any }>('/user');
+      const response = await this.request<{ result: boolean; user?: { email?: string } }>('/user');
       logger.info('Raindrop authentication successful', { user: response.user?.email });
       return response.result;
     } catch (error) {
@@ -90,7 +90,7 @@ export class RaindropApi {
   async checkDuplicate(url: string, collectionId: number): Promise<boolean> {
     try {
       // Search for bookmarks with this URL in the collection
-      const response = await this.request<RaindropApiResponse<any>>(
+      const response = await this.request<RaindropApiResponse<{ link: string }>>(
         `/raindrops/${collectionId}?search=${encodeURIComponent(url)}`
       );
 
@@ -99,7 +99,7 @@ export class RaindropApi {
       }
 
       // Check if any item has an exact URL match
-      const exists = response.items.some((item: any) => item.link === url);
+      const exists = response.items.some((item) => item.link === url);
       return exists;
     } catch (error) {
       logger.warn('Error checking for duplicate', { url, error });
@@ -111,7 +111,7 @@ export class RaindropApi {
    * Create a new bookmark
    */
   async createBookmark(bookmark: RaindropBookmark): Promise<void> {
-    const response = await this.request<RaindropApiResponse<any>>('/raindrop', {
+    const response = await this.request<RaindropApiResponse<unknown>>('/raindrop', {
       method: 'POST',
       body: JSON.stringify(bookmark),
     });

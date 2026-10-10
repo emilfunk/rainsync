@@ -11,7 +11,7 @@ export enum MessageType {
   BULK_SYNC_PROGRESS = 'BULK_SYNC_PROGRESS',
 }
 
-export interface Message<T = any> {
+export interface Message<T = unknown> {
   type: MessageType;
   payload?: T;
 }
