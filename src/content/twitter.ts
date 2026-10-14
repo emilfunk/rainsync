@@ -58,7 +58,7 @@ class TwitterContentScript {
    * Start bulk sync on bookmarks page
    */
   private async startBulkSync(): Promise<void> {
-    if (window.location.pathname !== '/i/bookmarks') {
+    if (window.location.pathname !== '/i/bookmarks' && !window.location.pathname.startsWith('/i/history')) {
       logger.warn('Bulk sync can only run on bookmarks page');
       return;
     }

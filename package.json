@@ -16,6 +16,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "node scripts/e2e-browser-test.mjs",
+    "sync:x": "node scripts/sync-x-bookmarks.mjs",
+    "sync:linkedin": "node scripts/sync-linkedin-saved.mjs",
+    "sync:instagram": "node scripts/sync-instagram-saved.mjs",
     "cookies": "node scripts/export-cookies.js"
   },
   "dependencies": {
