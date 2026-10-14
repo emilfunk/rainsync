@@ -76,7 +76,7 @@ export function Popup() {
     <div className="popup">
       <header>
         <h1>RainSync</h1>
-        <p className="tagline">Twitter → Raindrop.io</p>
+        <p className="tagline">X · YouTube · Instagram · LinkedIn → Raindrop</p>
       </header>
 
       <div className="status">

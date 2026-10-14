@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "RainSync",
   "version": "1.0.0",
-  "description": "Automatically sync Twitter bookmarks to Raindrop.io in real-time",
+  "description": "Automatically sync Twitter, YouTube, Instagram, and LinkedIn saves to Raindrop.io in real-time",
   "author": "RainSync Team",
   "homepage_url": "https://github.com/weppami/rainsync",
   "icons": {
@@ -18,6 +18,9 @@
   "host_permissions": [
     "https://twitter.com/*",
     "https://x.com/*",
+    "https://*.youtube.com/*",
+    "https://*.instagram.com/*",
+    "https://*.linkedin.com/*",
     "https://api.raindrop.io/*"
   ],
   "background": {
@@ -27,6 +30,21 @@
     {
       "matches": ["https://twitter.com/*", "https://x.com/*"],
       "js": ["src/content/twitter.ts"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.youtube.com/*"],
+      "js": ["src/content/youtube.ts"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.instagram.com/*"],
+      "js": ["src/content/instagram.ts"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*.linkedin.com/*"],
+      "js": ["src/content/linkedin.ts"],
       "run_at": "document_idle"
     }
   ],
@@ -38,7 +56,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "RainSync - Twitter to Raindrop"
+    "default_title": "RainSync - Social to Raindrop"
   },
   "options_ui": {
     "page": "src/options/index.html",

@@ -154,7 +154,7 @@ export function Options() {
       <div className="container">
         <header>
           <h1>RainSync Settings</h1>
-          <p className="subtitle">Configure your Twitter to Raindrop.io sync</p>
+          <p className="subtitle">Sync your X/Twitter, YouTube, Instagram & LinkedIn saves to Raindrop.io</p>
         </header>
 
         <main>

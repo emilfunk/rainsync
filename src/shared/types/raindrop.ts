@@ -7,6 +7,7 @@ export interface RaindropBookmark {
     $id: number;
   };
   created?: string;
+  cover?: string;
 }
 
 export interface RaindropCollection {

@@ -178,40 +178,95 @@ export class SyncManager {
    */
   private async syncBookmark(queuedBookmark: QueuedBookmark): Promise<'saved' | 'duplicate'> {
     const { tweet, customTag } = queuedBookmark;
+    const platform = tweet.platform || 'twitter';
 
     return this.retryHandler.executeWithRetry(async () => {
-      // Ensure collection exists
-      const collectionId = await this.collectionManager.ensureCollection();
+      // Ensure collection exists for the specific platform
+      const collectionId = await this.collectionManager.ensureCollection(platform);
 
       // Check for duplicates
       const isDuplicate = await this.raindropApi.checkDuplicate(tweet.url, collectionId);
       if (isDuplicate) {
-        logger.info('Bookmark already exists in Raindrop, skipping', { url: tweet.url });
+        logger.info('Bookmark already exists in Raindrop, skipping', { url: tweet.url, platform });
         return 'duplicate' as const;
       }
 
-      // Convert tweet to Raindrop bookmark
+      // Convert item to Raindrop bookmark
       const raindropBookmark = this.convertTweetToRaindrop(tweet, collectionId, customTag);
 
       // Create bookmark
       await this.raindropApi.createBookmark(raindropBookmark);
 
-      logger.info('Bookmark created in Raindrop', { url: tweet.url, customTag });
+      logger.info('Bookmark created in Raindrop', { url: tweet.url, platform, customTag });
       return 'saved' as const;
     }, `sync bookmark ${tweet.url}`);
   }
 
   /**
-   * Convert a Tweet to a RaindropBookmark
+   * Convert a SocialPost / Tweet to a RaindropBookmark
    */
   private convertTweetToRaindrop(tweet: Tweet, collectionId: number, customTag?: string): RaindropBookmark {
-    // Title: First 100 chars or first line of tweet text
+    const platform = tweet.platform || 'twitter';
+
+    if (platform === 'youtube') {
+      const title = tweet.title || tweet.text.substring(0, 100).split('\n')[0] || 'YouTube Video';
+      const tags = ['youtube', 'video'];
+      if (customTag) tags.push(customTag);
+      if (tweet.tags) tags.push(...tweet.tags);
+
+      const excerpt = `Channel: ${tweet.author.displayName}${tweet.author.handle ? ` (${tweet.author.handle})` : ''}\n\n${tweet.text || ''}\n\nSaved: ${new Date().toISOString()}`;
+
+      return {
+        link: tweet.url,
+        title,
+        excerpt,
+        tags,
+        collection: { $id: collectionId },
+        cover: tweet.thumbnail,
+      };
+    }
+
+    if (platform === 'instagram') {
+      const title = tweet.title || (tweet.text ? tweet.text.substring(0, 100).split('\n')[0] : `Instagram post by @${tweet.author.handle}`);
+      const tags = ['instagram'];
+      if (customTag) tags.push(customTag);
+      if (tweet.tags) tags.push(...tweet.tags);
+
+      const excerpt = `${tweet.text || '(No caption)'}\n\nAuthor: @${tweet.author.handle}${tweet.author.displayName ? ` (${tweet.author.displayName})` : ''}\nSaved: ${new Date().toISOString()}`;
+
+      return {
+        link: tweet.url,
+        title,
+        excerpt,
+        tags,
+        collection: { $id: collectionId },
+        cover: tweet.thumbnail,
+      };
+    }
+
+    if (platform === 'linkedin') {
+      const title = tweet.title || (tweet.text ? tweet.text.substring(0, 100).split('\n')[0] : `LinkedIn post by ${tweet.author.displayName}`);
+      const tags = ['linkedin'];
+      if (customTag) tags.push(customTag);
+      if (tweet.tags) tags.push(...tweet.tags);
+
+      const excerpt = `${tweet.text || ''}\n\nAuthor: ${tweet.author.displayName}${tweet.author.handle ? ` (${tweet.author.handle})` : ''}\nSaved: ${new Date().toISOString()}`;
+
+      return {
+        link: tweet.url,
+        title,
+        excerpt,
+        tags,
+        collection: { $id: collectionId },
+      };
+    }
+
+    // Default: Twitter
     let title = tweet.text.substring(0, 100).split('\n')[0] || `Post by ${tweet.author.handle}`;
     if (tweet.isDeleted) {
       title = `[DELETED] ${title}`;
     }
 
-    // Tags: Simple, meaningful tags only
     const tags = ['twitter'];
     if (tweet.isDeleted) {
       tags.push('tweet-deleted');
@@ -223,7 +278,6 @@ export class SyncManager {
       tags.push(customTag);
     }
 
-    // Excerpt/Notes: Full tweet text + quote tweet if applicable + metadata
     let excerpt = tweet.text || '(No text: photo or video only)';
 
     if (tweet.quotedTweet) {
