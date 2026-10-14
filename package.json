@@ -14,13 +14,17 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "cookies": "node scripts/export-cookies.js"
   },
   "dependencies": {
+    "@steipete/sweet-cookie": "^0.4.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@crxjs/vite-plugin": "^3.0.0",
+    "@eslint/js": "^9.39.5",
     "@types/chrome": "^0.0.253",
     "@types/node": "^24.0.0",
     "@types/react": "^18.2.43",
@@ -30,14 +34,12 @@
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.0.0",
     "jsdom": "^27.0.1",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.3",
-    "@crxjs/vite-plugin": "^3.0.0",
-    "@eslint/js": "^9.39.5",
     "typescript-eslint": "^8.71.1",
-    "globals": "^17.0.0"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   }
 }

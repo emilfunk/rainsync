@@ -42,3 +42,8 @@ rainsync-*.zip
 /fup.md
 /Firefly_*.png
 /store/raw/
+
+# Exported cookie files (credentials)
+cookies-export.json
+*cookie*.json
+

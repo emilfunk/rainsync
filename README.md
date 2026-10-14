@@ -19,6 +19,7 @@
 
 ✨ **Real-time Sync** - Automatically syncs bookmarks as you save them across X, YouTube, Instagram & LinkedIn  
 📁 **Multi-Collection Routing** - Automatically creates and routes each platform to its own dedicated Raindrop collection  
+🍪 **Sweet Cookie Storage** - Captures, normalizes, and stores session cookies formatted with `@steipete/sweet-cookie` schema for external tools/automation  
 📦 **Bulk Sync (X/Twitter)** - Import all existing bookmarks at once  
 🔄 **Queue System** - Reliable sync with automatic retry on failures and exponential backoff  
 ⚡ **Rate Limiting** - Smart delays to respect Raindrop API limits  
@@ -116,7 +117,22 @@ Click the RainSync extension icon to see:
 - Total bookmarks synced
 - Last sync time
 - Queue length (if any pending)
-- Error messages (if any)
+### Sweet Cookie Session Capture & Export
+
+RainSync integrates with [`@steipete/sweet-cookie`](https://github.com/steipete/sweet-cookie) to capture, normalize, and store session cookies for X, YouTube, Instagram, and LinkedIn.
+
+**In the Extension:**
+1. Open RainSync **Options / Settings**
+2. Scroll to the **Sweet Cookie Session Storage** section
+3. Click **Capture Cookies Now** to grab active cookies directly from Chrome's cookie store
+4. View cookie counts, **Copy JSON** to clipboard, or **Download JSON**
+
+**Via CLI Script:**
+You can also extract cookies from your local browser database directly using the sweet-cookie CLI tool:
+```bash
+npm run cookies
+```
+This reads your local browser sessions, filters partitioned cookies according to the sweet-cookie specification, and saves them to `cookies-export.json` (git-ignored).
 
 ## How It Works
 

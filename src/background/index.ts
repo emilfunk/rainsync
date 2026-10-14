@@ -13,6 +13,7 @@ import { showNotification } from '../shared/utils/notifications';
 import { raindropApi } from './raindrop-api';
 import { CollectionManager } from './collection-manager';
 import { SyncManager } from './sync-manager';
+import { captureAndStoreCookies, getStoredCookies } from '../shared/utils/sweet-cookie';
 
 logger.info('RainSync background service worker starting...');
 
@@ -107,9 +108,41 @@ async function handleMessage(message: Message, sender: chrome.runtime.MessageSen
       return { success: true };
     }
 
+    case MessageType.CAPTURE_COOKIES_REQUEST:
+      return handleCaptureCookies();
+
+    case MessageType.GET_COOKIES_REQUEST:
+      return handleGetCookies();
+
     default:
       logger.warn('Unknown message type', { type: message.type });
       return { error: 'Unknown message type' };
+  }
+}
+
+async function handleCaptureCookies() {
+  try {
+    const payload = await captureAndStoreCookies();
+    return { success: true, count: payload.cookies.length, generatedAt: payload.generatedAt };
+  } catch (error) {
+    logger.error('Failed to capture cookies', error as Error);
+    return { error: formatErrorMessage(error) };
+  }
+}
+
+async function handleGetCookies() {
+  try {
+    const stored = await getStoredCookies();
+    return {
+      success: true,
+      hasCookies: !!stored.payload,
+      count: stored.payload?.cookies.length || 0,
+      lastUpdated: stored.lastUpdated,
+      payload: stored.payload,
+    };
+  } catch (error) {
+    logger.error('Failed to get stored cookies', error as Error);
+    return { error: formatErrorMessage(error) };
   }
 }
 

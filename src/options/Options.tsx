@@ -25,9 +25,70 @@ export function Options() {
     status: '',
   });
 
+  const [cookieInfo, setCookieInfo] = useState<{ count: number; lastUpdated?: number; payload?: any } | null>(null);
+  const [capturingCookies, setCapturingCookies] = useState(false);
+  const [cookieMessage, setCookieMessage] = useState<string | null>(null);
+
   useEffect(() => {
     loadSettings();
+    loadCookies();
   }, []);
+
+  async function loadCookies() {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.GET_COOKIES_REQUEST,
+      });
+      if (response.success) {
+        setCookieInfo(response);
+      }
+    } catch (err) {
+      console.error('Failed to load cookies', err);
+    }
+  }
+
+  async function handleCaptureCookies() {
+    setCapturingCookies(true);
+    setCookieMessage(null);
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: MessageType.CAPTURE_COOKIES_REQUEST,
+      });
+      if (response.success) {
+        setCookieMessage(`Stored ${response.count} cookies across your social accounts!`);
+        await loadCookies();
+      } else {
+        setCookieMessage(`Error storing cookies: ${response.error}`);
+      }
+    } catch (err: any) {
+      setCookieMessage(`Failed: ${err.message}`);
+    } finally {
+      setCapturingCookies(false);
+      setTimeout(() => setCookieMessage(null), 4000);
+    }
+  }
+
+  async function handleCopyCookieJson() {
+    if (!cookieInfo?.payload) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(cookieInfo.payload, null, 2));
+      setCookieMessage('Sweet Cookie JSON copied to clipboard!');
+      setTimeout(() => setCookieMessage(null), 3000);
+    } catch (err: any) {
+      setCookieMessage('Failed to copy to clipboard');
+    }
+  }
+
+  function handleDownloadCookieJson() {
+    if (!cookieInfo?.payload) return;
+    const blob = new Blob([JSON.stringify(cookieInfo.payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sweet-cookies-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   async function loadSettings() {
     try {
@@ -223,6 +284,56 @@ export function Options() {
                   </div>
                 )}
               </div>
+            )}
+          </section>
+
+          <section className="section">
+            <h2>Sweet Cookie Storage 🍪</h2>
+            <p className="help-text">
+              Store and export browser session cookies for X, YouTube, Instagram, and LinkedIn in{' '}
+              <a href="https://github.com/steipete/sweet-cookie" target="_blank" rel="noopener noreferrer">
+                @steipete/sweet-cookie
+              </a>{' '}
+              standard format. Useful for AI agents, scrapers, and local tools.
+            </p>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+              <button
+                type="button"
+                onClick={handleCaptureCookies}
+                disabled={capturingCookies}
+                className="btn-bulk-sync"
+              >
+                {capturingCookies ? 'Storing...' : 'Refresh Stored Cookies'}
+              </button>
+              {cookieInfo?.payload && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleCopyCookieJson}
+                    className="btn-bulk-sync"
+                    style={{ background: '#27272a' }}
+                  >
+                    Copy JSON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadCookieJson}
+                    className="btn-bulk-sync"
+                    style={{ background: '#27272a' }}
+                  >
+                    Download .json
+                  </button>
+                </>
+              )}
+            </div>
+            {cookieInfo?.payload && (
+              <p className="help-text" style={{ marginTop: '8px', color: '#10b981' }}>
+                ✓ {cookieInfo.count} cookies stored across {cookieInfo.payload.origins.length} platforms
+                {cookieInfo.lastUpdated && ` (updated ${new Date(cookieInfo.lastUpdated).toLocaleTimeString()})`}
+              </p>
+            )}
+            {cookieMessage && (
+              <p className="info-text" style={{ marginTop: '6px' }}>{cookieMessage}</p>
             )}
           </section>
 
