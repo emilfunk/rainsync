@@ -5,7 +5,7 @@ import { showPageToast } from './page-toast';
 
 logger.info('RainSync YouTube connector loaded on', window.location.href);
 
-class YouTubeConnector {
+export class YouTubeConnector {
   private observer: MutationObserver | null = null;
   private processedVideoIds = new Set<string>();
   private lastLikedVideoId: string | null = null;

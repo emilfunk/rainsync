@@ -5,7 +5,7 @@ import { showPageToast } from './page-toast';
 
 logger.info('RainSync LinkedIn connector loaded on', window.location.href);
 
-class LinkedInConnector {
+export class LinkedInConnector {
   private processedPostUrls = new Set<string>();
   private activePostContainer: Element | null = null;
 

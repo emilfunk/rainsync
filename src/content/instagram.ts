@@ -5,7 +5,7 @@ import { showPageToast } from './page-toast';
 
 logger.info('RainSync Instagram connector loaded on', window.location.href);
 
-class InstagramConnector {
+export class InstagramConnector {
   private observer: MutationObserver | null = null;
   private processedPostUrls = new Set<string>();
 
