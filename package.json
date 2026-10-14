@@ -1,7 +1,7 @@
 {
   "name": "rainsync",
-  "version": "1.0.0",
-  "description": "Chrome extension to sync Twitter bookmarks to Raindrop.io",
+  "version": "1.1.0",
+  "description": "Chrome extension to automatically sync X/Twitter, YouTube, Instagram, and LinkedIn saves to Raindrop.io",
   "license": "MIT",
   "type": "module",
   "scripts": {

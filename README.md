@@ -1,6 +1,6 @@
 # RainSync
 
-> Automatically sync your Twitter/X bookmarks to Raindrop.io in real-time
+> Automatically sync your X/Twitter, YouTube, Instagram, and LinkedIn saves to Raindrop.io in real-time
 
 <p align="center">
   <img src="https://img.shields.io/badge/Chrome-Extension-green?logo=googlechrome" alt="Chrome Extension">
@@ -8,17 +8,22 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
 </p>
 
+## Supported Platforms
+
+* 🐦 **X (Twitter)**: Automatically saves any tweet bookmarked on x.com to your **`Twitter Bookmarks`** collection.
+* 🎥 **YouTube**: Automatically saves videos you **Like** or save to **Watch Later / Playlists** to your **`YouTube Liked & Saved`** collection.
+* 📸 **Instagram**: Automatically saves posts and reels when clicking the bookmark **Save** ribbon to your **`Instagram Saved`** collection.
+* 💼 **LinkedIn**: Automatically saves posts when choosing **Save** from the post action menu to your **`LinkedIn Saved`** collection.
+
 ## Features
 
-✨ **Real-time Sync** - Automatically syncs bookmarks as you save them on Twitter/X
-📦 **Bulk Sync** - Import all existing bookmarks at once
-🔄 **Queue System** - Reliable sync with automatic retry on failures
-🏷️ **Smart Tagging** - Auto-tags with author handle and tweet metadata
-📝 **Quote Tweet Support** - Preserves both quoted content and commentary
-🗑️ **Deleted Tweet Handling** - Archives deleted tweets with special tags
-⚡ **Rate Limiting** - Smart delays to respect API limits
-🎨 **Clean UI** - Simple popup and options interface
-🔒 **Privacy First** - Your data stays between Twitter and Raindrop
+✨ **Real-time Sync** - Automatically syncs bookmarks as you save them across X, YouTube, Instagram & LinkedIn  
+📁 **Multi-Collection Routing** - Automatically creates and routes each platform to its own dedicated Raindrop collection  
+📦 **Bulk Sync (X/Twitter)** - Import all existing bookmarks at once  
+🔄 **Queue System** - Reliable sync with automatic retry on failures and exponential backoff  
+⚡ **Rate Limiting** - Smart delays to respect Raindrop API limits  
+🎨 **Clean UI** - In-page confirmation toasts, popup status monitor, and options interface  
+🔒 **Privacy First** - Your data stays entirely between your browser and your Raindrop.io account  
 
 ## Installation
 
